@@ -1,7 +1,16 @@
 "use client";
 
-import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type FormEvent,
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -72,12 +81,19 @@ const ButtonLink = ({
   href,
   children,
   light = false,
+  onClick,
 }: {
   href: string;
   children: React.ReactNode;
   light?: boolean;
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) => (
-  <Link className={`btn ${light ? "light" : ""}`} href={href}>
+  <Link
+    className={`btn ${light ? "light" : ""}`}
+    href={href}
+    onClick={onClick}
+    scroll={onClick ? false : undefined}
+  >
     {children}
     <ArrowUpRight size={17} />
   </Link>
@@ -220,15 +236,16 @@ function ContactForm({ source = "contact_page" }: { source?: string }) {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setStatus("loading");
     setError("");
 
     try {
       await submitJson("/api/contact", {
-        ...formDataToObject(event.currentTarget),
+        ...formDataToObject(form),
         source,
       });
-      event.currentTarget.reset();
+      form.reset();
       setStatus("success");
     } catch (requestError) {
       setError(
@@ -265,15 +282,16 @@ function NewsletterForm() {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setStatus("loading");
     setError("");
 
     try {
       await submitJson("/api/newsletter", {
-        ...formDataToObject(event.currentTarget),
+        ...formDataToObject(form),
         source: "footer_beauty_list",
       });
-      event.currentTarget.reset();
+      form.reset();
       setStatus("success");
     } catch (requestError) {
       setError(
@@ -322,12 +340,13 @@ function BridalInquiryForm() {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setStatus("loading");
     setError("");
 
     try {
-      await submitJson("/api/bridal", formDataToObject(event.currentTarget));
-      event.currentTarget.reset();
+      await submitJson("/api/bridal", formDataToObject(form));
+      form.reset();
       setStatus("success");
     } catch (requestError) {
       setError(
@@ -385,19 +404,20 @@ function BookingRequestForm({
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setStatus("loading");
     setError("");
 
     try {
       await submitJson("/api/booking", {
-        ...formDataToObject(event.currentTarget),
+        ...formDataToObject(form),
         service_slug: service.slug,
         requested_service: service.name,
         requested_start: slot.start_iso,
         requested_end: slot.end_iso,
         time_zone: slot.time_zone,
       });
-      event.currentTarget.reset();
+      form.reset();
       setStatus("success");
       onSuccess();
     } catch (requestError) {
@@ -806,7 +826,13 @@ function ServiceCards() {
   );
 }
 
-function HeroFilm({ onCredit }: { onCredit: () => void }) {
+function HeroFilm({
+  onCredit,
+  onNavigate,
+}: {
+  onCredit: () => void;
+  onNavigate: (event: MouseEvent<HTMLAnchorElement>, href: string) => void;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [paused, setPaused] = useState(false);
 
@@ -860,15 +886,32 @@ function HeroFilm({ onCredit }: { onCredit: () => void }) {
         />
         <p>{C.copy.heroSub}</p>
         <div className="heroactions">
-          <ButtonLink href="/book">{C.copy.book}</ButtonLink>
-          <Link className="textlink" href="/bridal">
+          <ButtonLink
+            href="/book"
+            onClick={(event) => onNavigate(event, "/book")}
+          >
+            {C.copy.book}
+          </ButtonLink>
+          <Link
+            className="textlink"
+            href="/bridal"
+            onClick={(event) => onNavigate(event, "/bridal")}
+            scroll={false}
+          >
             {C.copy.explore}
             <ArrowUpRight size={16} />
           </Link>
         </div>
       </div>
       <div className="film-bottom">
-        <span>MIRIÃ COTRIM · BRIDAL BEAUTY</span>
+        <Link
+          href="/"
+          className="film-brand"
+          onClick={(event) => onNavigate(event, "/")}
+          scroll={false}
+        >
+          MIRIÃ COTRIM · BRIDAL BEAUTY
+        </Link>
         <div>
           <button className="film-credit" onClick={onCredit} type="button">
             Inspiration film · Licensed footage
@@ -951,6 +994,7 @@ function Bridal({ full = false }: { full?: boolean }) {
 }
 
 export default function Site({ page }: { page: string }) {
+  const router = useRouter();
   const [menu, setMenu] = useState(false);
   const [notice, setNotice] = useState("");
   const [language, setLanguage] = useState("EN");
@@ -965,17 +1009,75 @@ export default function Site({ page }: { page: string }) {
       : `${page.charAt(0).toUpperCase() + page.slice(1)} | Miriã Cotrim`;
   }, [home, page]);
 
+  const scrollToPageTarget = useCallback(
+    (hash = "", behavior: ScrollBehavior = "auto") => {
+    window.requestAnimationFrame(() => {
+      window.setTimeout(() => {
+        if (!hash) {
+          window.scrollTo({ top: 0, left: 0, behavior });
+          return;
+        }
+
+        const target = document.getElementById(hash);
+        if (!target) {
+          return;
+        }
+
+        const headerHeight =
+          document.querySelector<HTMLElement>(".header")?.offsetHeight ?? 0;
+        const targetTop =
+          target.getBoundingClientRect().top + window.scrollY - headerHeight;
+
+        window.scrollTo({
+          top: Math.max(0, targetTop),
+          left: 0,
+          behavior,
+        });
+      }, 35);
+    });
+    },
+    [],
+  );
+
+  useEffect(() => {
+    scrollToPageTarget(window.location.hash.replace("#", ""));
+  }, [page, scrollToPageTarget]);
+
   const showNotice = (message: string) => setNotice(message);
   const whatsappUrl = whatsappNumber
     ? `https://wa.me/${whatsappNumber}?text=Hello%20Miria%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.`
     : "";
   const isCurrentPage = (href: string) =>
     href === "/" ? home : page === href.replace(/^\/|\/$/g, "");
+  const handleNavigationClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    const [path, hash] = href.split("#");
+    const targetPath = path || window.location.pathname;
+    const currentPath = window.location.pathname;
+
+    event.preventDefault();
+    setMenu(false);
+
+    if (targetPath === currentPath) {
+      scrollToPageTarget(hash || "", "smooth");
+      return;
+    }
+
+    router.push(href, { scroll: false });
+  };
 
   return (
     <>
       <header className="header">
-        <Link href="/" className="brand" aria-label="Miriã Cotrim home">
+        <Link
+          href="/"
+          className="brand"
+          aria-label="Miriã Cotrim home"
+          onClick={(event) => handleNavigationClick(event, "/")}
+          scroll={false}
+        >
           <img src={photo(1)} alt="Miriã Cotrim Bridal Beauty logo" />
         </Link>
         <nav className="desktopnav">
@@ -984,6 +1086,8 @@ export default function Site({ page }: { page: string }) {
               className={isCurrentPage(href) ? "current" : ""}
               key={name}
               href={href}
+              onClick={(event) => handleNavigationClick(event, href)}
+              scroll={false}
             >
               {name}
             </Link>
@@ -1002,7 +1106,12 @@ export default function Site({ page }: { page: string }) {
           >
             {language} <span>⌄</span>
           </button>
-          <Link href="/book" className="navbook">
+          <Link
+            href="/book"
+            className="navbook"
+            onClick={(event) => handleNavigationClick(event, "/book")}
+            scroll={false}
+          >
             Book now
             <ArrowUpRight size={15} />
           </Link>
@@ -1022,7 +1131,12 @@ export default function Site({ page }: { page: string }) {
           <SheetTitle>{C.brand.name}</SheetTitle>
           <SheetDescription>{C.brand.tagline}</SheetDescription>
           {visibleNavigation.map(([name, href]) => (
-            <Link key={name} href={href} onClick={() => setMenu(false)}>
+            <Link
+              key={name}
+              href={href}
+              onClick={(event) => handleNavigationClick(event, href)}
+              scroll={false}
+            >
               {name}
             </Link>
           ))}
@@ -1034,6 +1148,7 @@ export default function Site({ page }: { page: string }) {
         {home && (
           <>
             <HeroFilm
+              onNavigate={handleNavigationClick}
               onCredit={() =>
                 showNotice(
                   "The homepage film uses licensed inspiration footage from Pexels. The people shown are not presented as Miriã's clients.",
