@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -806,6 +806,87 @@ function ServiceCards() {
   );
 }
 
+function HeroFilm({ onCredit }: { onCredit: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [paused, setPaused] = useState(false);
+
+  function toggleVideo() {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    if (video.paused) {
+      video
+        .play()
+        .then(() => setPaused(false))
+        .catch(() => setPaused(true));
+    } else {
+      video.pause();
+      setPaused(true);
+    }
+  }
+
+  return (
+    <section className="hero hero-film">
+      <div className="film-background">
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          loop
+          preload="metadata"
+          poster="/video/hero-poster.jpg"
+          aria-label="Bridal and celebration inspiration film"
+          onPlay={() => setPaused(false)}
+          onPause={() => setPaused(true)}
+        >
+          <source
+            src="/video/hero-mobile.mp4"
+            media="(max-width: 600px)"
+            type="video/mp4"
+          />
+          <source src="/video/hero-desktop.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div className="herocopy">
+        <span className="eyebrow">{C.copy.eyebrow}</span>
+        <h1
+          dangerouslySetInnerHTML={{
+            __html: `${C.copy.hero} <em>${C.copy.heroEm}</em> ${C.copy.heroEnd}`,
+          }}
+        />
+        <p>{C.copy.heroSub}</p>
+        <div className="heroactions">
+          <ButtonLink href="/book">{C.copy.book}</ButtonLink>
+          <Link className="textlink" href="/bridal">
+            {C.copy.explore}
+            <ArrowUpRight size={16} />
+          </Link>
+        </div>
+      </div>
+      <div className="film-bottom">
+        <span>MIRIÃ COTRIM · BRIDAL BEAUTY</span>
+        <div>
+          <button className="film-credit" onClick={onCredit} type="button">
+            Inspiration film · Licensed footage
+          </button>
+          <button
+            className="film-toggle"
+            onClick={toggleVideo}
+            type="button"
+            aria-label={paused ? "Play film" : "Pause film"}
+          >
+            {paused ? "▶ Play film" : "Ⅱ Pause film"}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function About({ full = false }: { full?: boolean }) {
   return (
     <section className="about section">
@@ -888,6 +969,8 @@ export default function Site({ page }: { page: string }) {
   const whatsappUrl = whatsappNumber
     ? `https://wa.me/${whatsappNumber}?text=Hello%20Miria%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.`
     : "";
+  const isCurrentPage = (href: string) =>
+    href === "/" ? home : page === href.replace(/^\/|\/$/g, "");
 
   return (
     <>
@@ -896,9 +979,9 @@ export default function Site({ page }: { page: string }) {
           <img src={photo(1)} alt="Miriã Cotrim Bridal Beauty logo" />
         </Link>
         <nav className="desktopnav">
-          {visibleNavigation.slice(1).map(([name, href]) => (
+          {visibleNavigation.map(([name, href]) => (
             <Link
-              className={page === href.slice(1) ? "current" : ""}
+              className={isCurrentPage(href) ? "current" : ""}
               key={name}
               href={href}
             >
@@ -950,36 +1033,13 @@ export default function Site({ page }: { page: string }) {
       <main>
         {home && (
           <>
-            <section className="hero">
-              <div className="herocopy">
-                <span className="eyebrow">{C.copy.eyebrow}</span>
-                <h1>
-                  {C.copy.hero}
-                  <br />
-                  <em>{C.copy.heroEm}</em>
-                  <br />
-                  {C.copy.heroEnd}
-                </h1>
-                <p>{C.copy.heroSub}</p>
-                <ButtonLink href="/book">{C.copy.book}</ButtonLink>
-                <Link className="herosecond" href="/portfolio">
-                  View portfolio
-                  <ArrowRight size={17} />
-                </Link>
-                <div className="herobottom">
-                  <span>HAIR & MAKEUP, WITH INTENTION.</span>
-                  <span>01 — 03</span>
-                </div>
-              </div>
-              <div className="heroimage">
-                <Photo id={0} priority alt="Elegant bridal updo by Miriã Cotrim" />
-                <span className="imagecaption">THE BEAUTY OF BEING YOU</span>
-              </div>
-              <div className="heroside">
-                <Photo id={44} priority alt="Bridal beauty with a veil" />
-                <span>MADE FOR UNFORGETTABLE MOMENTS</span>
-              </div>
-            </section>
+            <HeroFilm
+              onCredit={() =>
+                showNotice(
+                  "The homepage film uses licensed inspiration footage from Pexels. The people shown are not presented as Miriã's clients.",
+                )
+              }
+            />
 
             <section className="intro section">
               <span className="eyebrow">A PERSONAL APPROACH TO BEAUTY</span>
