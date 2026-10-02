@@ -161,6 +161,11 @@ const i18n = {
     },
     ui: {
       languageNotice: "Language changed to English.",
+      validationTitle: "Please review the form.",
+      completeFields: "Please complete",
+      invalidEmail: "Please enter a valid email address.",
+      invalidPhone:
+        "Please enter a valid phone or WhatsApp number with area code.",
       navBook: "Book now",
       openMenu: "Open menu",
       bookNow: "Book now",
@@ -504,6 +509,11 @@ const i18n = {
     },
     ui: {
       languageNotice: "Idioma alterado para português.",
+      validationTitle: "Revise o formulário.",
+      completeFields: "Preencha",
+      invalidEmail: "Digite um e-mail válido.",
+      invalidPhone:
+        "Digite um telefone ou WhatsApp válido com código de área.",
       navBook: "Agendar",
       openMenu: "Abrir menu",
       bookNow: "Agendar",
@@ -772,6 +782,61 @@ function formDataToObject(form: HTMLFormElement) {
   return Object.fromEntries(new FormData(form).entries());
 }
 
+function formValue(data: Record<string, unknown>, key: string) {
+  const value = data[key];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function isEmailFormat(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isPhoneFormat(value: string) {
+  const digits = value.replace(/\D/g, "");
+  return digits.length >= 10 && digits.length <= 15;
+}
+
+function validateSubmission(
+  data: Record<string, unknown>,
+  requiredFields: Array<{ key: string; label: string }>,
+  ui: {
+    validationTitle: string;
+    completeFields: string;
+    invalidEmail: string;
+    invalidPhone: string;
+  },
+  options: { phoneRequired?: boolean } = {},
+): SubmitFeedback | null {
+  const missingFields = requiredFields.filter(({ key }) => !formValue(data, key));
+
+  if (missingFields.length) {
+    return {
+      title: ui.validationTitle,
+      message: `${ui.completeFields}: ${missingFields
+        .map(({ label: fieldLabel }) => fieldLabel)
+        .join(", ")}.`,
+    };
+  }
+
+  const email = formValue(data, "email");
+  if (email && !isEmailFormat(email)) {
+    return {
+      title: ui.validationTitle,
+      message: ui.invalidEmail,
+    };
+  }
+
+  const phone = formValue(data, "phone");
+  if ((phone || options.phoneRequired) && !isPhoneFormat(phone)) {
+    return {
+      title: ui.validationTitle,
+      message: ui.invalidPhone,
+    };
+  }
+
+  return null;
+}
+
 async function submitJson(endpoint: string, body: Record<string, unknown>) {
   const response = await fetch(endpoint, {
     method: "POST",
@@ -877,12 +942,29 @@ function ContactForm({ source = "contact_page" }: { source?: string }) {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
+    const formData = formDataToObject(form);
+    const validation = validateSubmission(
+      formData,
+      [
+        { key: "name", label: labels.name },
+        { key: "email", label: labels.email },
+        { key: "message", label: labels.message },
+      ],
+      ui,
+    );
+
+    if (validation) {
+      setFeedback(validation);
+      setStatus("error");
+      return;
+    }
+
     setStatus("loading");
     setFeedback(feedbackText.contact.loading);
 
     try {
       const result = await submitJson("/api/contact", {
-        ...formDataToObject(form),
+        ...formData,
         source,
       });
       form.reset();
@@ -903,7 +985,7 @@ function ContactForm({ source = "contact_page" }: { source?: string }) {
   }
 
   return (
-    <form className="form" onSubmit={onSubmit}>
+    <form className="form" onSubmit={onSubmit} noValidate>
       <div className="formgrid">
         <Field label={labels.name} name="name" required />
         <Field label={labels.email} name="email" type="email" required />
@@ -929,12 +1011,25 @@ function NewsletterForm() {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
+    const formData = formDataToObject(form);
+    const validation = validateSubmission(
+      formData,
+      [{ key: "email", label: labels.email }],
+      ui,
+    );
+
+    if (validation) {
+      setFeedback(validation);
+      setStatus("error");
+      return;
+    }
+
     setStatus("loading");
     setFeedback(feedbackText.newsletter.loading);
 
     try {
       const result = await submitJson("/api/newsletter", {
-        ...formDataToObject(form),
+        ...formData,
         source: "footer_beauty_list",
       });
       form.reset();
@@ -959,7 +1054,7 @@ function NewsletterForm() {
   }
 
   return (
-    <form className="form" onSubmit={onSubmit}>
+    <form className="form" onSubmit={onSubmit} noValidate>
       <Field label={labels.name} name="name" />
       <Field label={labels.email} name="email" type="email" required />
       <input name="consent" type="hidden" value="true" />
@@ -981,11 +1076,33 @@ function BridalInquiryForm() {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
+    const formData = formDataToObject(form);
+    const validation = validateSubmission(
+      formData,
+      [
+        { key: "bride_name", label: ui.brideName },
+        { key: "email", label: labels.email },
+        { key: "phone", label: labels.phone },
+        { key: "event_date", label: labels.eventDate },
+        { key: "event_location", label: labels.eventLocation },
+        { key: "service_type", label: labels.serviceType },
+        { key: "details", label: labels.details },
+      ],
+      ui,
+      { phoneRequired: true },
+    );
+
+    if (validation) {
+      setFeedback(validation);
+      setStatus("error");
+      return;
+    }
+
     setStatus("loading");
     setFeedback(feedbackText.bridal.loading);
 
     try {
-      const result = await submitJson("/api/bridal", formDataToObject(form));
+      const result = await submitJson("/api/bridal", formData);
       form.reset();
       setFeedback(
         successFeedback(result, feedbackText.bridal.success, language === "EN"),
@@ -1004,7 +1121,7 @@ function BridalInquiryForm() {
   }
 
   return (
-    <form className="form" onSubmit={onSubmit}>
+    <form className="form" onSubmit={onSubmit} noValidate>
       <div className="formgrid">
         <Field label={ui.brideName} name="bride_name" required />
         <Field label={labels.email} name="email" type="email" required />
@@ -1053,12 +1170,30 @@ function BookingRequestForm({
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
+    const formData = formDataToObject(form);
+    const validation = validateSubmission(
+      formData,
+      [
+        { key: "name", label: labels.name },
+        { key: "email", label: labels.email },
+        { key: "phone", label: labels.phone },
+      ],
+      ui,
+      { phoneRequired: true },
+    );
+
+    if (validation) {
+      setFeedback(validation);
+      setStatus("error");
+      return;
+    }
+
     setStatus("loading");
     setFeedback(feedbackText.booking.loading);
 
     try {
       const result = await submitJson("/api/booking", {
-        ...formDataToObject(form),
+        ...formData,
         service_slug: service.slug,
         requested_service: service.name,
         requested_start: slot.start_iso,
@@ -1084,7 +1219,7 @@ function BookingRequestForm({
   }
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} noValidate>
       <div className="summary">
         {translatedService(service, content)} · {formatDuration(service.duration_minutes)}
         <br />
@@ -1774,9 +1909,7 @@ export default function Site({ page }: { page: string }) {
           <button
             className="language"
             onClick={() => {
-              const nextLanguage = language === "EN" ? "PT" : "EN";
-              setLanguage(nextLanguage);
-              showNotice(i18n[nextLanguage].ui.languageNotice);
+              setLanguage(language === "EN" ? "PT" : "EN");
             }}
             type="button"
           >

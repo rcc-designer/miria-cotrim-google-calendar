@@ -9,7 +9,12 @@ import {
   createPendingCalendarEvent,
   getCalendarBusyTimes,
 } from "@/lib/googleCalendar";
-import { cleanString, getSupabaseAdmin, isValidEmail } from "@/lib/supabaseServer";
+import {
+  cleanString,
+  getSupabaseAdmin,
+  isValidEmail,
+  isValidPhone,
+} from "@/lib/supabaseServer";
 
 export const runtime = "nodejs";
 
@@ -35,6 +40,13 @@ export async function POST(request: Request) {
     if (!isValidEmail(email)) {
       return NextResponse.json(
         { error: "Please enter a valid email address." },
+        { status: 400 },
+      );
+    }
+
+    if (!isValidPhone(phone)) {
+      return NextResponse.json(
+        { error: "Please enter a valid phone or WhatsApp number." },
         { status: 400 },
       );
     }
