@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  AlertCircle,
   ArrowRight,
   ArrowUpRight,
   Camera,
@@ -45,6 +46,14 @@ import {
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 type FieldType = "text" | "email" | "tel" | "date" | "time" | "number";
+type SubmitFeedback = {
+  title: string;
+  message: string;
+};
+type SubmitResponse = SubmitFeedback & {
+  ok?: boolean;
+  error?: string;
+};
 type BookingService = {
   slug: string;
   name: string;
@@ -75,6 +84,58 @@ const label = {
   preferredDate: "Preferred date",
   preferredTime: "Preferred time",
   notes: "Notes",
+};
+
+const feedbackCopy = {
+  contact: {
+    loading: {
+      title: "Sending your message...",
+      message: "Please keep this page open while we submit your request.",
+    },
+    success: {
+      title: "Message received.",
+      message:
+        "Thank you for reaching out. Miriã's team will review your message and follow up soon.",
+    },
+    errorTitle: "Message not sent.",
+  },
+  newsletter: {
+    loading: {
+      title: "Joining the Beauty List...",
+      message: "Please wait while we save your subscription.",
+    },
+    success: {
+      title: "You're on the Beauty List.",
+      message:
+        "Thank you for joining. You'll receive occasional beauty notes, bridal updates and appointment availability.",
+    },
+    errorTitle: "Subscription not saved.",
+  },
+  bridal: {
+    loading: {
+      title: "Sending your bridal inquiry...",
+      message: "Please keep this page open while we save your event details.",
+    },
+    success: {
+      title: "Bridal inquiry received.",
+      message:
+        "Thank you. Your event details were saved and Miriã's team will review them before following up.",
+    },
+    errorTitle: "Bridal inquiry not sent.",
+  },
+  booking: {
+    loading: {
+      title: "Sending your appointment request...",
+      message:
+        "Please wait while we confirm the time is still available and save your request.",
+    },
+    success: {
+      title: "Appointment request received.",
+      message:
+        "Your selected time was saved as pending confirmation. Miriã's team will review it and follow up soon.",
+    },
+    errorTitle: "Appointment request not sent.",
+  },
 };
 
 const ButtonLink = ({
@@ -174,7 +235,7 @@ async function submitJson(endpoint: string, body: Record<string, unknown>) {
     body: JSON.stringify(body),
   });
 
-  const result = await response.json().catch(() => ({}));
+  const result = (await response.json().catch(() => ({}))) as Partial<SubmitResponse>;
   if (!response.ok) {
     throw new Error(
       typeof result.error === "string"
@@ -184,6 +245,27 @@ async function submitJson(endpoint: string, body: Record<string, unknown>) {
   }
 
   return result;
+}
+
+function successFeedback(
+  result: Partial<SubmitResponse>,
+  fallback: SubmitFeedback,
+) {
+  return {
+    title: result.title || fallback.title,
+    message: result.message || fallback.message,
+  };
+}
+
+function errorFeedback(
+  error: unknown,
+  fallbackTitle: string,
+  fallbackMessage: string,
+) {
+  return {
+    title: fallbackTitle,
+    message: error instanceof Error ? error.message : fallbackMessage,
+  };
 }
 
 function dateToYmd(date: Date) {
@@ -204,54 +286,57 @@ function formatDuration(minutes: number) {
 
 function SubmitState({
   status,
-  error,
+  feedback,
 }: {
   status: FormStatus;
-  error: string;
+  feedback: SubmitFeedback | null;
 }) {
-  if (status === "success") {
-    return (
-      <div className="success" role="status">
-        <Check />
-        <h3>{C.copy.confirmation}</h3>
-        <p>{C.copy.confirmationText}</p>
+  if (status === "idle" || !feedback) {
+    return null;
+  }
+
+  const Icon = status === "success" ? Check : status === "error" ? AlertCircle : MessageCircle;
+
+  return (
+    <div
+      className={`formfeedback ${status}`}
+      role={status === "error" ? "alert" : "status"}
+      aria-live="polite"
+    >
+      <Icon />
+      <div>
+        <h3>{feedback.title}</h3>
+        <p>{feedback.message}</p>
       </div>
-    );
-  }
-
-  if (status === "error") {
-    return (
-      <p className="formmessage error" role="alert">
-        {error || "Please check the form and try again."}
-      </p>
-    );
-  }
-
-  return null;
+    </div>
+  );
 }
 
 function ContactForm({ source = "contact_page" }: { source?: string }) {
   const [status, setStatus] = useState<FormStatus>("idle");
-  const [error, setError] = useState("");
+  const [feedback, setFeedback] = useState<SubmitFeedback | null>(null);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     setStatus("loading");
-    setError("");
+    setFeedback(feedbackCopy.contact.loading);
 
     try {
-      await submitJson("/api/contact", {
+      const result = await submitJson("/api/contact", {
         ...formDataToObject(form),
         source,
       });
       form.reset();
+      setFeedback(successFeedback(result, feedbackCopy.contact.success));
       setStatus("success");
     } catch (requestError) {
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "We could not send your message right now.",
+      setFeedback(
+        errorFeedback(
+          requestError,
+          feedbackCopy.contact.errorTitle,
+          "We could not send your message right now.",
+        ),
       );
       setStatus("error");
     }
@@ -265,7 +350,7 @@ function ContactForm({ source = "contact_page" }: { source?: string }) {
         <Field label={label.phone} name="phone" type="tel" />
       </div>
       <TextArea label={label.message} name="message" required />
-      <SubmitState status={status} error={error} />
+      <SubmitState status={status} feedback={feedback} />
       {status !== "success" && (
         <button className="btn" type="submit" disabled={status === "loading"}>
           {status === "loading" ? "Sending..." : "Send message"}
@@ -278,39 +363,36 @@ function ContactForm({ source = "contact_page" }: { source?: string }) {
 
 function NewsletterForm() {
   const [status, setStatus] = useState<FormStatus>("idle");
-  const [error, setError] = useState("");
+  const [feedback, setFeedback] = useState<SubmitFeedback | null>(null);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     setStatus("loading");
-    setError("");
+    setFeedback(feedbackCopy.newsletter.loading);
 
     try {
-      await submitJson("/api/newsletter", {
+      const result = await submitJson("/api/newsletter", {
         ...formDataToObject(form),
         source: "footer_beauty_list",
       });
       form.reset();
+      setFeedback(successFeedback(result, feedbackCopy.newsletter.success));
       setStatus("success");
     } catch (requestError) {
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "We could not add you to the beauty list right now.",
+      setFeedback(
+        errorFeedback(
+          requestError,
+          feedbackCopy.newsletter.errorTitle,
+          "We could not add you to the beauty list right now.",
+        ),
       );
       setStatus("error");
     }
   }
 
   if (status === "success") {
-    return (
-      <div className="success" role="status">
-        <Check />
-        <h3>You're on the list.</h3>
-        <p>Thank you for joining Miriã's beauty list.</p>
-      </div>
-    );
+    return <SubmitState status={status} feedback={feedback} />;
   }
 
   return (
@@ -318,11 +400,7 @@ function NewsletterForm() {
       <Field label="Name" name="name" />
       <Field label="Email" name="email" type="email" required />
       <input name="consent" type="hidden" value="true" />
-      {status === "error" && (
-        <p className="formmessage error" role="alert">
-          {error || "Please check your email and try again."}
-        </p>
-      )}
+      <SubmitState status={status} feedback={feedback} />
       <button className="btn" type="submit" disabled={status === "loading"}>
         {status === "loading" ? "Joining..." : "Join our beauty list"}
         <ArrowUpRight size={17} />
@@ -336,23 +414,26 @@ function NewsletterForm() {
 
 function BridalInquiryForm() {
   const [status, setStatus] = useState<FormStatus>("idle");
-  const [error, setError] = useState("");
+  const [feedback, setFeedback] = useState<SubmitFeedback | null>(null);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     setStatus("loading");
-    setError("");
+    setFeedback(feedbackCopy.bridal.loading);
 
     try {
-      await submitJson("/api/bridal", formDataToObject(form));
+      const result = await submitJson("/api/bridal", formDataToObject(form));
       form.reset();
+      setFeedback(successFeedback(result, feedbackCopy.bridal.success));
       setStatus("success");
     } catch (requestError) {
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "We could not send your bridal inquiry right now.",
+      setFeedback(
+        errorFeedback(
+          requestError,
+          feedbackCopy.bridal.errorTitle,
+          "We could not send your bridal inquiry right now.",
+        ),
       );
       setStatus("error");
     }
@@ -379,7 +460,7 @@ function BridalInquiryForm() {
         </label>
       </div>
       <TextArea label={label.details} name="details" required />
-      <SubmitState status={status} error={error} />
+      <SubmitState status={status} feedback={feedback} />
       {status !== "success" && (
         <button className="btn" type="submit" disabled={status === "loading"}>
           {status === "loading" ? "Sending..." : "Request bridal proposal"}
@@ -394,22 +475,24 @@ function BookingRequestForm({
   service,
   slot,
   onSuccess,
+  onStartOver,
 }: {
   service: BookingService;
   slot: AvailabilitySlot;
   onSuccess: () => void;
+  onStartOver: () => void;
 }) {
   const [status, setStatus] = useState<FormStatus>("idle");
-  const [error, setError] = useState("");
+  const [feedback, setFeedback] = useState<SubmitFeedback | null>(null);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     setStatus("loading");
-    setError("");
+    setFeedback(feedbackCopy.booking.loading);
 
     try {
-      await submitJson("/api/booking", {
+      const result = await submitJson("/api/booking", {
         ...formDataToObject(form),
         service_slug: service.slug,
         requested_service: service.name,
@@ -418,13 +501,16 @@ function BookingRequestForm({
         time_zone: slot.time_zone,
       });
       form.reset();
+      setFeedback(successFeedback(result, feedbackCopy.booking.success));
       setStatus("success");
       onSuccess();
     } catch (requestError) {
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "We could not send your booking request right now.",
+      setFeedback(
+        errorFeedback(
+          requestError,
+          feedbackCopy.booking.errorTitle,
+          "We could not send your booking request right now.",
+        ),
       );
       setStatus("error");
     }
@@ -442,14 +528,23 @@ function BookingRequestForm({
         })}{" "}
         · {slot.start_label} to {slot.end_label}
       </div>
-      <div className="formgrid">
-        <Field label={label.name} name="name" required />
-        <Field label={label.email} name="email" type="email" required />
-        <Field label={label.phone} name="phone" type="tel" required />
-      </div>
-      <TextArea label={label.notes} name="notes" />
-      <SubmitState status={status} error={error} />
       {status !== "success" && (
+        <>
+          <div className="formgrid">
+            <Field label={label.name} name="name" required />
+            <Field label={label.email} name="email" type="email" required />
+            <Field label={label.phone} name="phone" type="tel" required />
+          </div>
+          <TextArea label={label.notes} name="notes" />
+        </>
+      )}
+      <SubmitState status={status} feedback={feedback} />
+      {status === "success" ? (
+        <button className="textlink" onClick={onStartOver} type="button">
+          Start another appointment request
+          <ArrowRight size={16} />
+        </button>
+      ) : (
         <button className="btn" type="submit" disabled={status === "loading"}>
           {status === "loading" ? "Sending..." : C.copy.submit}
           <ArrowRight size={16} />
@@ -470,6 +565,7 @@ function Booking() {
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [loadError, setLoadError] = useState("");
   const [availabilityWarning, setAvailabilityWarning] = useState("");
+  const [bookingComplete, setBookingComplete] = useState(false);
   const selectedService = useMemo(
     () => services.find((item) => item.slug === serviceSlug),
     [services, serviceSlug],
@@ -618,6 +714,7 @@ function Booking() {
                   setServiceSlug(item.slug);
                   setDate(undefined);
                   setSlot(undefined);
+                  setBookingComplete(false);
                 }}
                 type="button"
               >
@@ -647,7 +744,10 @@ function Booking() {
             <Calendar
               mode="single"
               selected={date}
-              onSelect={setDate}
+              onSelect={(selectedDate) => {
+                setDate(selectedDate);
+                setBookingComplete(false);
+              }}
               disabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
               className="bookcalendar"
             />
@@ -674,7 +774,10 @@ function Booking() {
                 <button
                   className={slot?.id === item.id ? "selected" : ""}
                   key={item.id}
-                  onClick={() => setSlot(item)}
+                  onClick={() => {
+                    setSlot(item);
+                    setBookingComplete(false);
+                  }}
                   type="button"
                 >
                   {item.start_label}
@@ -688,40 +791,44 @@ function Booking() {
           <BookingRequestForm
             service={selectedService}
             slot={slot}
-            onSuccess={() => {
+            onSuccess={() => setBookingComplete(true)}
+            onStartOver={() => {
               setServiceSlug("");
               setDate(undefined);
               setSlot(undefined);
               setAvailability([]);
+              setBookingComplete(false);
               setStep(0);
             }}
           />
         )}
-        <div className="stepnav">
-          {step > 0 && (
-            <button className="textlink" onClick={() => setStep(step - 1)} type="button">
-              <ChevronLeft size={16} />
-              {C.copy.back}
-            </button>
-          )}
-          {step < 3 && (
-            <button
-              className="btn"
-              disabled={
-                step === 0
-                  ? !serviceSlug
-                  : step === 1
-                    ? !date
-                    : !slot
-              }
-              onClick={() => setStep(step + 1)}
-              type="button"
-            >
-              {C.copy.next}
-              <ArrowRight size={16} />
-            </button>
-          )}
-        </div>
+        {!bookingComplete && (
+          <div className="stepnav">
+            {step > 0 && (
+              <button className="textlink" onClick={() => setStep(step - 1)} type="button">
+                <ChevronLeft size={16} />
+                {C.copy.back}
+              </button>
+            )}
+            {step < 3 && (
+              <button
+                className="btn"
+                disabled={
+                  step === 0
+                    ? !serviceSlug
+                    : step === 1
+                      ? !date
+                      : !slot
+                }
+                onClick={() => setStep(step + 1)}
+                type="button"
+              >
+                {C.copy.next}
+                <ArrowRight size={16} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

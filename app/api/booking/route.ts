@@ -110,6 +110,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
+      title: "Appointment request received.",
+      message:
+        "Your selected time was saved as pending confirmation. Miriã's team will review it and follow up soon.",
       status: "pending_confirmation",
       googleEventId: googleEvent.id,
     });

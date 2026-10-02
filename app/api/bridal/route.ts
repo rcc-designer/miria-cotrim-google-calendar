@@ -55,7 +55,12 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      ok: true,
+      title: "Bridal inquiry received.",
+      message:
+        "Thank you. Your event details were saved and Miriã's team will review them before following up.",
+    });
   } catch (error) {
     console.error("bridal route failed", error);
     return NextResponse.json(

@@ -43,7 +43,12 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      ok: true,
+      title: "Message received.",
+      message:
+        "Thank you for reaching out. Miriã's team will review your message and follow up soon.",
+    });
   } catch (error) {
     console.error("contact route failed", error);
     return NextResponse.json(

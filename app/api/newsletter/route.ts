@@ -49,7 +49,12 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      ok: true,
+      title: "You're on the Beauty List.",
+      message:
+        "Thank you for joining. You'll receive occasional beauty notes, bridal updates and appointment availability.",
+    });
   } catch (error) {
     console.error("newsletter route failed", error);
     return NextResponse.json(

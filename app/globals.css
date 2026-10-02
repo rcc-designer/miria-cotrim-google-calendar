@@ -148,13 +148,21 @@ body {
 .field select{width:100%!important;min-height:46px;border:1px solid #cfc2b1!important;background:#fff8;border-radius:0!important;padding:11px 12px;font-size:16px;outline-offset:3px;box-shadow:none!important}
 .formmessage{font-size:13px!important;margin:8px 0 20px}
 .formmessage.error{color:#9f1d1d}
+.formfeedback{display:flex;gap:14px;align-items:flex-start;border:1px solid #d4c6b5;background:#fffaf2;padding:18px 18px;margin:8px 0 22px;color:#4f4034}
+.formfeedback svg{width:23px;height:23px;margin-top:2px;color:#8b6e4e}
+.formfeedback h3{font-size:23px;line-height:1.2;margin-bottom:7px;color:#332b27}
+.formfeedback p{font-size:14px!important;line-height:1.7!important;color:#6f5e50;margin:0}
+.formfeedback.success{border-color:#cdbd9f;background:#faf4e8}
+.formfeedback.error{border-color:#c99b8f;background:#fff5f2}
+.formfeedback.error svg,.formfeedback.error h3{color:#8a2f24}
+.formfeedback.loading{border-color:#d8ccb9;background:#fbf7ef}
 .options button>span,.times button{min-width:0}
 .options button>span{display:flex;flex-direction:column;gap:5px}
 .options button small,.times button small{display:block;font-size:12px;color:inherit;opacity:.75;line-height:1.35}
 .times button{align-items:flex-start;flex-direction:column}
-.newsletter .success{padding:8px 0}
-.newsletter .success svg{display:none}
-.newsletter .success h3{font-size:20px}
+.newsletter .formfeedback{margin-top:0;padding:14px}
+.newsletter .formfeedback h3{font-size:20px}
+.newsletter .formfeedback p{font-size:12px!important}
 [id]{scroll-margin-top:120px}
 .hero-film{display:block;position:relative;isolation:isolate;margin:0;min-height:720px;height:calc(100svh - 104px);max-height:1000px;overflow:hidden;background:#413a32;color:white}
 .film-background{position:absolute;inset:0;z-index:-2}
