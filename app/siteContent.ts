@@ -9,7 +9,7 @@ export const siteContent = {
     bioApprovalPending: true,
   },
   contact: {
-    WHATSAPP_NUMBER: "",
+    WHATSAPP_NUMBER: "16893170689",
     email: "",
     location: "Orlando and Miami, Florida",
   },

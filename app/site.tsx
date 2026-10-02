@@ -3,7 +3,9 @@
 import {
   type FormEvent,
   type MouseEvent,
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -138,6 +140,548 @@ const feedbackCopy = {
   },
 };
 
+type Language = "EN" | "PT";
+
+const i18n = {
+  EN: {
+    language: "EN",
+    content: C,
+    pageTitles,
+    labels: label,
+    feedback: feedbackCopy,
+    categories,
+    categoryLabels: Object.fromEntries(categories.map((category) => [category, category])),
+    portfolioLabels: {
+      Updos: "Updos",
+      Brides: "Brides",
+      "Natural & Curly Hair": "Natural & Curly Hair",
+      "Waves & Curls": "Waves & Curls",
+      "Half-Up Styles": "Half-Up Styles",
+      Ponytails: "Ponytails",
+    },
+    ui: {
+      languageNotice: "Language changed to English.",
+      navBook: "Book now",
+      openMenu: "Open menu",
+      bookNow: "Book now",
+      gotIt: "Got it",
+      sending: "Sending...",
+      sendMessage: "Send message",
+      joining: "Joining...",
+      joinBeautyList: "Join our beauty list",
+      newsletterTitle: "Join our Beauty List",
+      newsletterNote:
+        "Occasional beauty notes, bridal updates and appointment availability.",
+      brideName: "Bride name",
+      selectService: "Select a service",
+      requestBridalProposal: "Request bridal proposal",
+      startAnotherRequest: "Start another appointment request",
+      bookingEyebrow: "A MOMENT, JUST FOR YOU",
+      bookingTitle: (
+        <>
+          Let's create
+          <br />
+          <em>something beautiful.</em>
+        </>
+      ),
+      bookingIntro:
+        "Choose a service and the website checks Miriã's live calendar before sending a pending appointment for confirmation.",
+      bookingSteps: [
+        "Select your service",
+        "Choose a date",
+        "Choose your time",
+        "A little about you",
+      ],
+      step: "STEP",
+      loadingServices: "Loading services...",
+      detailsConfirmed: "details confirmed after request",
+      inPerson: "in-person",
+      estimatedAt: "is estimated at",
+      filteredByLength: "Available times are filtered by service length.",
+      checkingAvailability: "Checking available times...",
+      availableTimesFor: "Available times for",
+      noAvailableTimes:
+        "No available times for this date. Please go back and choose another day.",
+      until: "until",
+      viewLook: "View",
+      hairArtistry: "Hair artistry by Miriã Cotrim",
+      previousPhoto: "Previous photo",
+      nextPhoto: "Next photo",
+      previous: "Previous",
+      next: "Next",
+      playFilm: "Play film",
+      pauseFilm: "Pause film",
+      filmLabel: "Bridal and celebration inspiration film",
+      filmCredit: "Inspiration film · Licensed footage",
+      filmNotice:
+        "The homepage film uses licensed inspiration footage from Pexels. The people shown are not presented as Miriã's clients.",
+      artistCaption: "THE ARTIST BEHIND YOUR BEAUTY",
+      aboutEyebrow: "PERSONAL BEAUTY. PURPOSEFUL ARTISTRY.",
+      aboutDetail: (
+        <>
+          An eye for detail.
+          <br />A heart for your story.
+        </>
+      ),
+      roles: (
+        <>
+          Bridal Beauty Artist · Hair Specialist
+          <br />
+          Makeup Artist · Event Beauty
+        </>
+      ),
+      discoverStory: "Discover her story",
+      letsMeet: "Let's meet",
+      bridalPhotoCaption: "YOUR DAY. YOUR BEAUTY. YOUR MOMENT.",
+      bridalEyebrow: "BEAUTIFUL FROM THE FIRST MOMENT",
+      bridalTitle: (
+        <>
+          The bridal
+          <br />
+          <em>experience.</em>
+        </>
+      ),
+      bridalText:
+        "From the first conversation to the final finishing touch. Hair and makeup that reflect who you are, for a day that is entirely yours.",
+      requestConsultation: "Request your bridal consultation",
+      introEyebrow: "A PERSONAL APPROACH TO BEAUTY",
+      servicesEyebrow: "BEAUTY, IN EVERY CHAPTER",
+      servicesTitle: (
+        <>
+          Created around <em>you.</em>
+        </>
+      ),
+      exploreServices: "Explore services",
+      selectedWork: "SELECTED WORK",
+      viewPortfolio: "View the portfolio",
+      signatureEyebrow: "THE DETAILS MAKE THE DIFFERENCE",
+      signatureLooks: [
+        "Romantic Updo",
+        "Hollywood Waves",
+        "Modern Bridal Bun",
+        "Soft Half-Up",
+      ],
+      guideEyebrow: "START WITH A CONVERSATION",
+      guideTitle: "Plan your beauty experience.",
+      guideText:
+        "Tell us about your wedding, celebration or appointment and Miriã's team will follow up with the next step.",
+      clientLoveEyebrow: "WORDS TO REMEMBER",
+      awaitingStories: "Awaiting approved client stories",
+      followBeauty: "Follow the beauty.",
+      pageEyebrow: "MIRIÃ COTRIM · BRIDAL BEAUTY",
+      careBehind: "THE CARE BEHIND EVERY LOOK",
+      behindSteps: [
+        "Consultation",
+        "Preparation",
+        "Styling",
+        "Finishing touches",
+        "Final look",
+      ],
+      specialEvents: "Special events",
+      specialEventsText:
+        "Personalized hair and makeup for birthdays, celebrations, photoshoots and the moments worth remembering.",
+      planEventLook: "Plan your event look",
+      hairTitle: "Hair, thoughtfully cared for.",
+      hairText:
+        "Explore cuts, styling, treatments and transformations in a personal consultation.",
+      exploreAppointment: "Explore an appointment",
+      bridalFormEyebrow: "TELL US ABOUT YOUR DAY",
+      bridalFormTitle: (
+        <>
+          Plan your bridal
+          <br />
+          <em>beauty experience.</em>
+        </>
+      ),
+      contactTitle: (
+        <>
+          Your story starts
+          <br />
+          <em>with a conversation.</em>
+        </>
+      ),
+      contactText:
+        "Bridal beauty, a special occasion, a fresh look or a custom event request. Send a message and Miriã's team will respond.",
+      exploreAppointments: "Explore appointments",
+      footerTagline: "BRIDAL BEAUTY",
+      footerCopy: (
+        <>
+          Personal beauty.
+          <br />
+          Unforgettable moments.
+        </>
+      ),
+      explore: "EXPLORE",
+      letsConnect: "LET'S CONNECT",
+      contact: "Contact",
+      email: "Email",
+      footerPolicies: ["Privacy Policy", "Terms", "Cancellation Policy"],
+      policyNotice:
+        "Final policies should be reviewed and published before launch.",
+      whatsappMissing:
+        "Add Miriã's official WhatsApp number in app/siteContent.ts before launch.",
+      whatsappText:
+        "Hello%20Miria%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.",
+      whatsappLabel: "Talk to Miriã on WhatsApp",
+      whatsappButton: "Talk to Miriã",
+    },
+  },
+  PT: {
+    language: "PT",
+    content: {
+      ...C,
+      brand: {
+        ...C.brand,
+        tagline: "Beleza para Noivas",
+      },
+      professional: {
+        ...C.professional,
+        bio:
+          "Miriã acredita que beleza deve ser pessoal, leve e inesquecível. Seu trabalho combina técnica, atenção aos detalhes e um atendimento personalizado para criar looks pensados para o estilo, a personalidade e o momento especial de cada cliente.",
+      },
+      navigation: [
+        ["Home", "/"],
+        ["Sobre", "/about"],
+        ["Serviços", "/services"],
+        ["Noivas", "/bridal"],
+        ["Portfólio", "/portfolio"],
+        ["Agendar", "/book"],
+        ["Contato", "/contact"],
+      ],
+      services: [
+        {
+          ...C.services[0],
+          name: "Beleza para Noivas",
+          sub: "Penteado e maquiagem para um momento único na vida.",
+        },
+        {
+          ...C.services[1],
+          name: "Eventos Especiais",
+          sub: "Aniversários, celebrações, ensaios e beleza para eventos marcantes.",
+        },
+        {
+          ...C.services[2],
+          name: "Serviços de Cabelo",
+          sub: "Cortes, penteados, tratamentos e transformações planejados para você.",
+        },
+        {
+          ...C.services[3],
+          name: "Consultoria de Beleza",
+          sub: "Uma conversa personalizada para escolher o look, o tempo e o serviço ideal.",
+        },
+      ],
+      bridalServices: [
+        "Penteado da noiva",
+        "Maquiagem da noiva",
+        "Prévia da noiva",
+        "Madrinhas",
+        "Mãe da noiva",
+        "Mãe do noivo",
+        "Wedding party",
+        "Penteado para evento",
+        "Beleza no local",
+      ],
+      seo: {
+        title: "Miriã Cotrim | Beleza para Noivas, Cabelo e Maquiagem",
+        description:
+          "Penteados, maquiagem, beleza para eventos e atendimentos personalizados com Miriã Cotrim em Orlando e Miami.",
+      },
+      copy: {
+        ...C.copy,
+        eyebrow: "NOIVAS • CABELO • MAQUIAGEM",
+        hero: "Beleza para os seus",
+        heroEm: "momentos mais lindos",
+        heroEnd: ".",
+        heroSub:
+          "Cabelo, maquiagem e beleza para eventos criados ao redor da sua história, do seu estilo e de como você deseja se sentir.",
+        book: "Agendar atendimento",
+        explore: "Conhecer serviços para noivas",
+        position: "Beleza para noivas, elevada.",
+        positionText:
+          "Mais do que um look bonito. A sensação de estar inteiramente você. Conheça cabelo e maquiagem personalizados para noivas, madrinhas, eventos especiais e retratos inesquecíveis.",
+        portfolio: "A arte de se sentir bonita.",
+        about: "Conheça Miriã",
+        behind: "Por trás da beleza",
+        signature: "Looks assinatura",
+        confirmation: "Sua solicitação foi enviada.",
+        confirmationText:
+          "Obrigada. A equipe de Miriã vai revisar sua mensagem e responder em breve.",
+        next: "Continuar",
+        back: "Voltar",
+        submit: "Enviar solicitação de agendamento",
+        clientLove: "Carinho das clientes",
+        testimonial: "Depoimento da cliente aparecerá aqui.",
+      },
+    },
+    pageTitles: {
+      about: "Beleza com toque pessoal.",
+      services: "Para cada momento especial.",
+      bridal: "Seu dia. Do seu jeito.",
+      portfolio: "Uma coleção de momentos bonitos.",
+      contact: "Vamos criar algo lindo.",
+    },
+    labels: {
+      name: "Nome",
+      email: "E-mail",
+      phone: "Telefone / WhatsApp",
+      message: "Mensagem",
+      eventDate: "Data do evento",
+      eventLocation: "Local do evento",
+      serviceType: "Tipo de serviço",
+      details: "Detalhes",
+      preferredDate: "Data preferida",
+      preferredTime: "Horário preferido",
+      notes: "Observações",
+    },
+    feedback: {
+      contact: {
+        loading: {
+          title: "Enviando sua mensagem...",
+          message: "Mantenha esta página aberta enquanto enviamos sua solicitação.",
+        },
+        success: {
+          title: "Mensagem recebida.",
+          message:
+            "Obrigada pelo contato. A equipe de Miriã vai revisar sua mensagem e responder em breve.",
+        },
+        errorTitle: "Mensagem não enviada.",
+      },
+      newsletter: {
+        loading: {
+          title: "Entrando na Beauty List...",
+          message: "Aguarde enquanto salvamos sua inscrição.",
+        },
+        success: {
+          title: "Você está na Beauty List.",
+          message:
+            "Obrigada por entrar na lista. Você receberá novidades, conteúdos de beleza e disponibilidade de agenda.",
+        },
+        errorTitle: "Inscrição não salva.",
+      },
+      bridal: {
+        loading: {
+          title: "Enviando sua consulta para noivas...",
+          message: "Mantenha esta página aberta enquanto salvamos os detalhes do evento.",
+        },
+        success: {
+          title: "Consulta para noivas recebida.",
+          message:
+            "Obrigada. Os detalhes do seu evento foram salvos e a equipe de Miriã vai revisar antes de responder.",
+        },
+        errorTitle: "Consulta para noivas não enviada.",
+      },
+      booking: {
+        loading: {
+          title: "Enviando sua solicitação de agendamento...",
+          message:
+            "Aguarde enquanto verificamos se o horário ainda está disponível e salvamos seu pedido.",
+        },
+        success: {
+          title: "Solicitação de agendamento recebida.",
+          message:
+            "O horário escolhido foi salvo como pendente de confirmação. A equipe de Miriã vai revisar e responder em breve.",
+        },
+        errorTitle: "Solicitação de agendamento não enviada.",
+      },
+    },
+    categories,
+    categoryLabels: {
+      All: "Todos",
+      Brides: "Noivas",
+      Updos: "Coques",
+      "Half-Up Styles": "Semipresos",
+      "Waves & Curls": "Ondas e cachos",
+      Ponytails: "Rabos de cavalo",
+      "Natural & Curly Hair": "Cabelos naturais e cacheados",
+    },
+    portfolioLabels: {
+      Updos: "Coques",
+      Brides: "Noivas",
+      "Natural & Curly Hair": "Cabelos naturais e cacheados",
+      "Waves & Curls": "Ondas e cachos",
+      "Half-Up Styles": "Semipresos",
+      Ponytails: "Rabos de cavalo",
+    },
+    ui: {
+      languageNotice: "Idioma alterado para português.",
+      navBook: "Agendar",
+      openMenu: "Abrir menu",
+      bookNow: "Agendar",
+      gotIt: "Entendi",
+      sending: "Enviando...",
+      sendMessage: "Enviar mensagem",
+      joining: "Entrando...",
+      joinBeautyList: "Entrar na Beauty List",
+      newsletterTitle: "Join our Beauty List",
+      newsletterNote:
+        "Novidades ocasionais sobre beleza, noivas e disponibilidade de agenda.",
+      brideName: "Nome da noiva",
+      selectService: "Selecione um serviço",
+      requestBridalProposal: "Solicitar proposta para noiva",
+      startAnotherRequest: "Iniciar outro pedido de agendamento",
+      bookingEyebrow: "UM MOMENTO SÓ PARA VOCÊ",
+      bookingTitle: (
+        <>
+          Vamos criar
+          <br />
+          <em>algo lindo.</em>
+        </>
+      ),
+      bookingIntro:
+        "Escolha um serviço e o site verifica a agenda de Miriã antes de enviar um pedido pendente de confirmação.",
+      bookingSteps: [
+        "Escolha o serviço",
+        "Escolha a data",
+        "Escolha o horário",
+        "Conte um pouco sobre você",
+      ],
+      step: "ETAPA",
+      loadingServices: "Carregando serviços...",
+      detailsConfirmed: "detalhes confirmados após o pedido",
+      inPerson: "presencial",
+      estimatedAt: "tem duração estimada de",
+      filteredByLength:
+        "Os horários disponíveis são filtrados conforme a duração do serviço.",
+      checkingAvailability: "Verificando horários disponíveis...",
+      availableTimesFor: "Horários disponíveis para",
+      noAvailableTimes:
+        "Não há horários disponíveis nesta data. Volte e escolha outro dia.",
+      until: "até",
+      viewLook: "Ver look",
+      hairArtistry: "Arte em cabelo por Miriã Cotrim",
+      previousPhoto: "Foto anterior",
+      nextPhoto: "Próxima foto",
+      previous: "Anterior",
+      next: "Próximo",
+      playFilm: "Reproduzir vídeo",
+      pauseFilm: "Pausar vídeo",
+      filmLabel: "Vídeo de inspiração para noivas e celebrações",
+      filmCredit: "Vídeo de inspiração · Imagens licenciadas",
+      filmNotice:
+        "O vídeo da home usa imagens licenciadas de inspiração do Pexels. As pessoas exibidas não são apresentadas como clientes de Miriã.",
+      artistCaption: "A ARTISTA POR TRÁS DA SUA BELEZA",
+      aboutEyebrow: "BELEZA PESSOAL. ARTE COM PROPÓSITO.",
+      aboutDetail: (
+        <>
+          Olhar para os detalhes.
+          <br />Cuidado com a sua história.
+        </>
+      ),
+      roles: (
+        <>
+          Beauty Artist para Noivas · Especialista em Cabelo
+          <br />
+          Maquiadora · Beleza para Eventos
+        </>
+      ),
+      discoverStory: "Conheça sua história",
+      letsMeet: "Vamos conversar",
+      bridalPhotoCaption: "SEU DIA. SUA BELEZA. SEU MOMENTO.",
+      bridalEyebrow: "LINDA DESDE O PRIMEIRO MOMENTO",
+      bridalTitle: (
+        <>
+          A experiência
+          <br />
+          <em>da noiva.</em>
+        </>
+      ),
+      bridalText:
+        "Da primeira conversa ao toque final. Cabelo e maquiagem que refletem quem você é, para um dia inteiramente seu.",
+      requestConsultation: "Solicitar consulta para noiva",
+      introEyebrow: "UMA ABORDAGEM PESSOAL PARA A BELEZA",
+      servicesEyebrow: "BELEZA EM CADA CAPÍTULO",
+      servicesTitle: (
+        <>
+          Criado ao redor de <em>você.</em>
+        </>
+      ),
+      exploreServices: "Ver serviços",
+      selectedWork: "TRABALHOS SELECIONADOS",
+      viewPortfolio: "Ver portfólio",
+      signatureEyebrow: "OS DETALHES FAZEM A DIFERENÇA",
+      signatureLooks: [
+        "Coque romântico",
+        "Ondas Hollywood",
+        "Coque moderno de noiva",
+        "Semipreso suave",
+      ],
+      guideEyebrow: "COMECE COM UMA CONVERSA",
+      guideTitle: "Planeje sua experiência de beleza.",
+      guideText:
+        "Conte sobre seu casamento, celebração ou atendimento e a equipe de Miriã responderá com o próximo passo.",
+      clientLoveEyebrow: "PALAVRAS PARA LEMBRAR",
+      awaitingStories: "Aguardando depoimentos aprovados",
+      followBeauty: "Acompanhe a beleza.",
+      pageEyebrow: "MIRIÃ COTRIM · BELEZA PARA NOIVAS",
+      careBehind: "O CUIDADO POR TRÁS DE CADA LOOK",
+      behindSteps: [
+        "Consulta",
+        "Preparação",
+        "Styling",
+        "Toques finais",
+        "Look final",
+      ],
+      specialEvents: "Eventos especiais",
+      specialEventsText:
+        "Cabelo e maquiagem personalizados para aniversários, celebrações, ensaios e momentos que merecem ser lembrados.",
+      planEventLook: "Planejar look para evento",
+      hairTitle: "Cabelo cuidado com intenção.",
+      hairText:
+        "Conheça cortes, penteados, tratamentos e transformações em uma consulta personalizada.",
+      exploreAppointment: "Conhecer agendamento",
+      bridalFormEyebrow: "CONTE SOBRE O SEU DIA",
+      bridalFormTitle: (
+        <>
+          Planeje sua experiência
+          <br />
+          <em>de beleza para noiva.</em>
+        </>
+      ),
+      contactTitle: (
+        <>
+          Sua história começa
+          <br />
+          <em>com uma conversa.</em>
+        </>
+      ),
+      contactText:
+        "Beleza para noivas, uma ocasião especial, um novo look ou um pedido personalizado para evento. Envie uma mensagem e a equipe de Miriã responderá.",
+      exploreAppointments: "Ver agendamentos",
+      footerTagline: "BELEZA PARA NOIVAS",
+      footerCopy: (
+        <>
+          Beleza pessoal.
+          <br />
+          Momentos inesquecíveis.
+        </>
+      ),
+      explore: "EXPLORE",
+      letsConnect: "VAMOS CONVERSAR",
+      contact: "Contato",
+      email: "E-mail",
+      footerPolicies: [
+        "Política de Privacidade",
+        "Termos",
+        "Política de Cancelamento",
+      ],
+      policyNotice:
+        "As políticas finais devem ser revisadas e publicadas antes do lançamento.",
+      whatsappMissing:
+        "Adicione o WhatsApp oficial de Miriã em app/siteContent.ts antes do lançamento.",
+      whatsappText:
+        "Ola%20Miria%2C%20gostaria%20de%20saber%20mais%20sobre%20seus%20servicos.",
+      whatsappLabel: "Falar com Miriã no WhatsApp",
+      whatsappButton: "Falar com Miriã",
+    },
+  },
+};
+
+const TranslationContext = createContext(i18n.EN);
+
+function useTranslation() {
+  return useContext(TranslationContext);
+}
+
 const ButtonLink = ({
   href,
   children,
@@ -250,10 +794,11 @@ async function submitJson(endpoint: string, body: Record<string, unknown>) {
 function successFeedback(
   result: Partial<SubmitResponse>,
   fallback: SubmitFeedback,
+  useServerCopy = true,
 ) {
   return {
-    title: result.title || fallback.title,
-    message: result.message || fallback.message,
+    title: useServerCopy ? result.title || fallback.title : fallback.title,
+    message: useServerCopy ? result.message || fallback.message : fallback.message,
   };
 }
 
@@ -282,6 +827,18 @@ function formatDuration(minutes: number) {
 
   const hours = minutes / 60;
   return Number.isInteger(hours) ? `${hours} hr` : `${hours.toFixed(1)} hr`;
+}
+
+function translatedService(
+  service: BookingService,
+  content: typeof C,
+) {
+  const matchingService = content.services.find((item) =>
+    service.name.toLowerCase().includes(item.name.toLowerCase()) ||
+    item.name.toLowerCase().includes(service.name.toLowerCase()),
+  );
+
+  return matchingService?.name || service.name;
 }
 
 function SubmitState({
@@ -313,6 +870,7 @@ function SubmitState({
 }
 
 function ContactForm({ source = "contact_page" }: { source?: string }) {
+  const { labels, feedback: feedbackText, ui, language } = useTranslation();
   const [status, setStatus] = useState<FormStatus>("idle");
   const [feedback, setFeedback] = useState<SubmitFeedback | null>(null);
 
@@ -320,7 +878,7 @@ function ContactForm({ source = "contact_page" }: { source?: string }) {
     event.preventDefault();
     const form = event.currentTarget;
     setStatus("loading");
-    setFeedback(feedbackCopy.contact.loading);
+    setFeedback(feedbackText.contact.loading);
 
     try {
       const result = await submitJson("/api/contact", {
@@ -328,13 +886,15 @@ function ContactForm({ source = "contact_page" }: { source?: string }) {
         source,
       });
       form.reset();
-      setFeedback(successFeedback(result, feedbackCopy.contact.success));
+      setFeedback(
+        successFeedback(result, feedbackText.contact.success, language === "EN"),
+      );
       setStatus("success");
     } catch (requestError) {
       setFeedback(
         errorFeedback(
           requestError,
-          feedbackCopy.contact.errorTitle,
+          feedbackText.contact.errorTitle,
           "We could not send your message right now.",
         ),
       );
@@ -345,15 +905,15 @@ function ContactForm({ source = "contact_page" }: { source?: string }) {
   return (
     <form className="form" onSubmit={onSubmit}>
       <div className="formgrid">
-        <Field label={label.name} name="name" required />
-        <Field label={label.email} name="email" type="email" required />
-        <Field label={label.phone} name="phone" type="tel" />
+        <Field label={labels.name} name="name" required />
+        <Field label={labels.email} name="email" type="email" required />
+        <Field label={labels.phone} name="phone" type="tel" />
       </div>
-      <TextArea label={label.message} name="message" required />
+      <TextArea label={labels.message} name="message" required />
       <SubmitState status={status} feedback={feedback} />
       {status !== "success" && (
         <button className="btn" type="submit" disabled={status === "loading"}>
-          {status === "loading" ? "Sending..." : "Send message"}
+          {status === "loading" ? ui.sending : ui.sendMessage}
           <ArrowUpRight size={17} />
         </button>
       )}
@@ -362,6 +922,7 @@ function ContactForm({ source = "contact_page" }: { source?: string }) {
 }
 
 function NewsletterForm() {
+  const { labels, feedback: feedbackText, ui, language } = useTranslation();
   const [status, setStatus] = useState<FormStatus>("idle");
   const [feedback, setFeedback] = useState<SubmitFeedback | null>(null);
 
@@ -369,7 +930,7 @@ function NewsletterForm() {
     event.preventDefault();
     const form = event.currentTarget;
     setStatus("loading");
-    setFeedback(feedbackCopy.newsletter.loading);
+    setFeedback(feedbackText.newsletter.loading);
 
     try {
       const result = await submitJson("/api/newsletter", {
@@ -377,13 +938,15 @@ function NewsletterForm() {
         source: "footer_beauty_list",
       });
       form.reset();
-      setFeedback(successFeedback(result, feedbackCopy.newsletter.success));
+      setFeedback(
+        successFeedback(result, feedbackText.newsletter.success, language === "EN"),
+      );
       setStatus("success");
     } catch (requestError) {
       setFeedback(
         errorFeedback(
           requestError,
-          feedbackCopy.newsletter.errorTitle,
+          feedbackText.newsletter.errorTitle,
           "We could not add you to the beauty list right now.",
         ),
       );
@@ -397,22 +960,21 @@ function NewsletterForm() {
 
   return (
     <form className="form" onSubmit={onSubmit}>
-      <Field label="Name" name="name" />
-      <Field label="Email" name="email" type="email" required />
+      <Field label={labels.name} name="name" />
+      <Field label={labels.email} name="email" type="email" required />
       <input name="consent" type="hidden" value="true" />
       <SubmitState status={status} feedback={feedback} />
       <button className="btn" type="submit" disabled={status === "loading"}>
-        {status === "loading" ? "Joining..." : "Join our beauty list"}
+        {status === "loading" ? ui.joining : ui.joinBeautyList}
         <ArrowUpRight size={17} />
       </button>
-      <p className="note">
-        Occasional beauty notes, bridal updates and appointment availability.
-      </p>
+      <p className="note">{ui.newsletterNote}</p>
     </form>
   );
 }
 
 function BridalInquiryForm() {
+  const { content, labels, feedback: feedbackText, ui, language } = useTranslation();
   const [status, setStatus] = useState<FormStatus>("idle");
   const [feedback, setFeedback] = useState<SubmitFeedback | null>(null);
 
@@ -420,18 +982,20 @@ function BridalInquiryForm() {
     event.preventDefault();
     const form = event.currentTarget;
     setStatus("loading");
-    setFeedback(feedbackCopy.bridal.loading);
+    setFeedback(feedbackText.bridal.loading);
 
     try {
       const result = await submitJson("/api/bridal", formDataToObject(form));
       form.reset();
-      setFeedback(successFeedback(result, feedbackCopy.bridal.success));
+      setFeedback(
+        successFeedback(result, feedbackText.bridal.success, language === "EN"),
+      );
       setStatus("success");
     } catch (requestError) {
       setFeedback(
         errorFeedback(
           requestError,
-          feedbackCopy.bridal.errorTitle,
+          feedbackText.bridal.errorTitle,
           "We could not send your bridal inquiry right now.",
         ),
       );
@@ -442,16 +1006,16 @@ function BridalInquiryForm() {
   return (
     <form className="form" onSubmit={onSubmit}>
       <div className="formgrid">
-        <Field label="Bride name" name="bride_name" required />
-        <Field label={label.email} name="email" type="email" required />
-        <Field label={label.phone} name="phone" type="tel" required />
-        <Field label={label.eventDate} name="event_date" type="date" required />
-        <Field label={label.eventLocation} name="event_location" required />
+        <Field label={ui.brideName} name="bride_name" required />
+        <Field label={labels.email} name="email" type="email" required />
+        <Field label={labels.phone} name="phone" type="tel" required />
+        <Field label={labels.eventDate} name="event_date" type="date" required />
+        <Field label={labels.eventLocation} name="event_location" required />
         <label className="field">
-          {label.serviceType}
+          {labels.serviceType}
           <select name="service_type" required>
-            <option value="">Select a service</option>
-            {C.bridalServices.map((service) => (
+            <option value="">{ui.selectService}</option>
+            {content.bridalServices.map((service) => (
               <option key={service} value={service}>
                 {service}
               </option>
@@ -459,11 +1023,11 @@ function BridalInquiryForm() {
           </select>
         </label>
       </div>
-      <TextArea label={label.details} name="details" required />
+      <TextArea label={labels.details} name="details" required />
       <SubmitState status={status} feedback={feedback} />
       {status !== "success" && (
         <button className="btn" type="submit" disabled={status === "loading"}>
-          {status === "loading" ? "Sending..." : "Request bridal proposal"}
+          {status === "loading" ? ui.sending : ui.requestBridalProposal}
           <ArrowUpRight size={17} />
         </button>
       )}
@@ -482,6 +1046,7 @@ function BookingRequestForm({
   onSuccess: () => void;
   onStartOver: () => void;
 }) {
+  const { content, labels, feedback: feedbackText, ui, language } = useTranslation();
   const [status, setStatus] = useState<FormStatus>("idle");
   const [feedback, setFeedback] = useState<SubmitFeedback | null>(null);
 
@@ -489,7 +1054,7 @@ function BookingRequestForm({
     event.preventDefault();
     const form = event.currentTarget;
     setStatus("loading");
-    setFeedback(feedbackCopy.booking.loading);
+    setFeedback(feedbackText.booking.loading);
 
     try {
       const result = await submitJson("/api/booking", {
@@ -501,14 +1066,16 @@ function BookingRequestForm({
         time_zone: slot.time_zone,
       });
       form.reset();
-      setFeedback(successFeedback(result, feedbackCopy.booking.success));
+      setFeedback(
+        successFeedback(result, feedbackText.booking.success, language === "EN"),
+      );
       setStatus("success");
       onSuccess();
     } catch (requestError) {
       setFeedback(
         errorFeedback(
           requestError,
-          feedbackCopy.booking.errorTitle,
+          feedbackText.booking.errorTitle,
           "We could not send your booking request right now.",
         ),
       );
@@ -519,7 +1086,7 @@ function BookingRequestForm({
   return (
     <form onSubmit={onSubmit}>
       <div className="summary">
-        {service.name} · {formatDuration(service.duration_minutes)}
+        {translatedService(service, content)} · {formatDuration(service.duration_minutes)}
         <br />
         {new Date(`${slot.date}T12:00:00`).toLocaleDateString("en-US", {
           month: "long",
@@ -531,22 +1098,22 @@ function BookingRequestForm({
       {status !== "success" && (
         <>
           <div className="formgrid">
-            <Field label={label.name} name="name" required />
-            <Field label={label.email} name="email" type="email" required />
-            <Field label={label.phone} name="phone" type="tel" required />
+            <Field label={labels.name} name="name" required />
+            <Field label={labels.email} name="email" type="email" required />
+            <Field label={labels.phone} name="phone" type="tel" required />
           </div>
-          <TextArea label={label.notes} name="notes" />
+          <TextArea label={labels.notes} name="notes" />
         </>
       )}
       <SubmitState status={status} feedback={feedback} />
       {status === "success" ? (
         <button className="textlink" onClick={onStartOver} type="button">
-          Start another appointment request
+          {ui.startAnotherRequest}
           <ArrowRight size={16} />
         </button>
       ) : (
         <button className="btn" type="submit" disabled={status === "loading"}>
-          {status === "loading" ? "Sending..." : C.copy.submit}
+          {status === "loading" ? ui.sending : content.copy.submit}
           <ArrowRight size={16} />
         </button>
       )}
@@ -555,6 +1122,7 @@ function BookingRequestForm({
 }
 
 function Booking() {
+  const { content, ui } = useTranslation();
   const [step, setStep] = useState(0);
   const [services, setServices] = useState<BookingService[]>([]);
   const [serviceSlug, setServiceSlug] = useState("");
@@ -571,12 +1139,7 @@ function Booking() {
     [services, serviceSlug],
   );
   const selectedDate = date ? dateToYmd(date) : "";
-  const titles = [
-    "Select your service",
-    "Choose a date",
-    "Choose your time",
-    "A little about you",
-  ];
+  const titles = ui.bookingSteps;
 
   useEffect(() => {
     let active = true;
@@ -677,14 +1240,9 @@ function Booking() {
       <aside>
         <span className="eyebrow">A MOMENT, JUST FOR YOU</span>
         <h2>
-          Let's create
-          <br />
-          <em>something beautiful.</em>
+          {ui.bookingTitle}
         </h2>
-        <p>
-          Choose a service and the website checks Miriã's live calendar before
-          sending a pending appointment for confirmation.
-        </p>
+        <p>{ui.bookingIntro}</p>
         <ol>
           {titles.map((title, index) => (
             <li key={title} className={step === index ? "active" : ""}>
@@ -695,7 +1253,7 @@ function Booking() {
         </ol>
       </aside>
       <div className="bookingbody">
-        <span className="eyebrow">STEP {Math.min(step + 1, 4)} / 4</span>
+        <span className="eyebrow">{ui.step} {Math.min(step + 1, 4)} / 4</span>
         <h3>{titles[step]}</h3>
         {loadError && (
           <p className="formmessage error" role="alert">
@@ -704,7 +1262,7 @@ function Booking() {
         )}
         {step === 0 && (
           <div className="options">
-            {servicesLoading && <p>Loading services...</p>}
+            {servicesLoading && <p>{ui.loadingServices}</p>}
             {!servicesLoading && services.map((item) => (
               <button
                 aria-pressed={serviceSlug === item.slug}
@@ -719,12 +1277,12 @@ function Booking() {
                 type="button"
               >
                 <span>
-                  {item.name}
+                  {translatedService(item, content)}
                   <small>
                     {formatDuration(item.duration_minutes)} ·{" "}
                     {item.location_type === "ask_invitee"
-                      ? "details confirmed after request"
-                      : "in-person"}
+                      ? ui.detailsConfirmed
+                      : ui.inPerson}
                   </small>
                 </span>
                 <ArrowUpRight size={16} />
@@ -736,9 +1294,8 @@ function Booking() {
           <>
             {selectedService && (
               <p className="note">
-                {selectedService.name} is estimated at{" "}
-                {formatDuration(selectedService.duration_minutes)}. Available
-                times are filtered by service length.
+                {translatedService(selectedService, content)} {ui.estimatedAt}{" "}
+                {formatDuration(selectedService.duration_minutes)}. {ui.filteredByLength}
               </p>
             )}
             <Calendar
@@ -756,17 +1313,17 @@ function Booking() {
         {step === 2 && (
           <>
             {availabilityWarning && <p className="note">{availabilityWarning}</p>}
-            {availabilityLoading && <p>Checking available times...</p>}
+            {availabilityLoading && <p>{ui.checkingAvailability}</p>}
             {!availabilityLoading && selectedDate && (
               <p className="note">
                 {availability.length
-                  ? `Available times for ${new Date(
+                  ? `${ui.availableTimesFor} ${new Date(
                       `${selectedDate}T12:00:00`,
                     ).toLocaleDateString("en-US", {
                       month: "long",
                       day: "numeric",
                     })}.`
-                  : "No available times for this date. Please go back and choose another day."}
+                  : ui.noAvailableTimes}
               </p>
             )}
             <div className="times">
@@ -781,7 +1338,7 @@ function Booking() {
                   type="button"
                 >
                   {item.start_label}
-                  <small>until {item.end_label}</small>
+                  <small>{ui.until} {item.end_label}</small>
                 </button>
               ))}
             </div>
@@ -807,7 +1364,7 @@ function Booking() {
             {step > 0 && (
               <button className="textlink" onClick={() => setStep(step - 1)} type="button">
                 <ChevronLeft size={16} />
-                {C.copy.back}
+                {content.copy.back}
               </button>
             )}
             {step < 3 && (
@@ -823,7 +1380,7 @@ function Booking() {
                 onClick={() => setStep(step + 1)}
                 type="button"
               >
-                {C.copy.next}
+                {content.copy.next}
                 <ArrowRight size={16} />
               </button>
             )}
@@ -835,6 +1392,9 @@ function Booking() {
 }
 
 function Gallery({ short = false }: { short?: boolean }) {
+  const { categories: categoryValues, categoryLabels, portfolioLabels, ui } = useTranslation();
+  const categoryText = categoryLabels as Record<string, string>;
+  const portfolioText = portfolioLabels as Record<string, string>;
   const [filter, setFilter] = useState("All");
   const [index, setIndex] = useState<number | null>(null);
   const filtered = (short ? portfolio.slice(0, 6) : portfolio).filter(
@@ -850,7 +1410,7 @@ function Gallery({ short = false }: { short?: boolean }) {
   return (
     <>
       <div className="filters">
-        {(short ? categories.slice(0, 5) : categories).map((category) => (
+        {(short ? categoryValues.slice(0, 5) : categoryValues).map((category) => (
           <button
             key={category}
             className={filter === category ? "active" : ""}
@@ -860,7 +1420,7 @@ function Gallery({ short = false }: { short?: boolean }) {
             }}
             type="button"
           >
-            {category}
+            {categoryText[category] || category}
           </button>
         ))}
       </div>
@@ -870,12 +1430,12 @@ function Gallery({ short = false }: { short?: boolean }) {
             key={item.id}
             className="galleryitem"
             onClick={() => setIndex(itemIndex)}
-            aria-label={`View ${item.category} look`}
+            aria-label={`${ui.viewLook} ${portfolioText[item.category] || item.category}`}
             type="button"
           >
             <Photo id={item.id} alt={`${item.category} by Miriã Cotrim`} />
             <span>
-              {item.category}
+              {portfolioText[item.category] || item.category}
               <Plus size={18} />
             </span>
           </button>
@@ -889,21 +1449,25 @@ function Gallery({ short = false }: { short?: boolean }) {
             if (event.key === "ArrowLeft") move(-1);
           }}
         >
-          <DialogTitle>{index !== null ? filtered[index]?.category : ""}</DialogTitle>
-          <DialogDescription>Hair artistry by Miriã Cotrim</DialogDescription>
+          <DialogTitle>
+            {index !== null
+              ? portfolioText[filtered[index]?.category] || filtered[index]?.category
+              : ""}
+          </DialogTitle>
+          <DialogDescription>{ui.hairArtistry}</DialogDescription>
           {index !== null && (
             <img src={photo(filtered[index].id)} alt={filtered[index].category} />
           )}
           <div className="lightnav">
-            <button aria-label="Previous photo" onClick={() => move(-1)} type="button">
+            <button aria-label={ui.previousPhoto} onClick={() => move(-1)} type="button">
               <ChevronLeft />
-              Previous
+              {ui.previous}
             </button>
             <span>
               {(index ?? 0) + 1} / {filtered.length}
             </span>
-            <button aria-label="Next photo" onClick={() => move(1)} type="button">
-              Next
+            <button aria-label={ui.nextPhoto} onClick={() => move(1)} type="button">
+              {ui.next}
               <ChevronRight />
             </button>
           </div>
@@ -914,9 +1478,10 @@ function Gallery({ short = false }: { short?: boolean }) {
 }
 
 function ServiceCards() {
+  const { content } = useTranslation();
   return (
     <div className="servicegrid">
-      {C.services.map((service, index) => (
+      {content.services.map((service, index) => (
         <Link href={service.href} key={service.name} className="servicecard">
           <div className="photo">
             <Photo id={service.image} />
@@ -940,6 +1505,7 @@ function HeroFilm({
   onCredit: () => void;
   onNavigate: (event: MouseEvent<HTMLAnchorElement>, href: string) => void;
 }) {
+  const { content, ui } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [paused, setPaused] = useState(false);
 
@@ -972,7 +1538,7 @@ function HeroFilm({
           loop
           preload="metadata"
           poster="/video/hero-poster.jpg"
-          aria-label="Bridal and celebration inspiration film"
+          aria-label={ui.filmLabel}
           onPlay={() => setPaused(false)}
           onPause={() => setPaused(true)}
         >
@@ -985,19 +1551,19 @@ function HeroFilm({
         </video>
       </div>
       <div className="herocopy">
-        <span className="eyebrow">{C.copy.eyebrow}</span>
+        <span className="eyebrow">{content.copy.eyebrow}</span>
         <h1
           dangerouslySetInnerHTML={{
-            __html: `${C.copy.hero} <em>${C.copy.heroEm}</em> ${C.copy.heroEnd}`,
+            __html: `${content.copy.hero} <em>${content.copy.heroEm}</em> ${content.copy.heroEnd}`,
           }}
         />
-        <p>{C.copy.heroSub}</p>
+        <p>{content.copy.heroSub}</p>
         <div className="heroactions">
           <ButtonLink
             href="/book"
             onClick={(event) => onNavigate(event, "/book")}
           >
-            {C.copy.book}
+            {content.copy.book}
           </ButtonLink>
           <Link
             className="textlink"
@@ -1005,7 +1571,7 @@ function HeroFilm({
             onClick={(event) => onNavigate(event, "/bridal")}
             scroll={false}
           >
-            {C.copy.explore}
+            {content.copy.explore}
             <ArrowUpRight size={16} />
           </Link>
         </div>
@@ -1021,15 +1587,15 @@ function HeroFilm({
         </Link>
         <div>
           <button className="film-credit" onClick={onCredit} type="button">
-            Inspiration film · Licensed footage
+            {ui.filmCredit}
           </button>
           <button
             className="film-toggle"
             onClick={toggleVideo}
             type="button"
-            aria-label={paused ? "Play film" : "Pause film"}
+            aria-label={paused ? ui.playFilm : ui.pauseFilm}
           >
-            {paused ? "▶ Play film" : "Ⅱ Pause film"}
+            {paused ? `▶ ${ui.playFilm}` : `Ⅱ ${ui.pauseFilm}`}
           </button>
         </div>
       </div>
@@ -1038,31 +1604,25 @@ function HeroFilm({
 }
 
 function About({ full = false }: { full?: boolean }) {
+  const { content, ui } = useTranslation();
   return (
     <section className="about section">
       <div className="portrait">
         <Photo id={5} alt="Miriã Cotrim, beauty artist" />
-        <span className="portraitcaption">THE ARTIST BEHIND YOUR BEAUTY</span>
+        <span className="portraitcaption">{ui.artistCaption}</span>
       </div>
       <div>
-        <span className="eyebrow">PERSONAL BEAUTY. PURPOSEFUL ARTISTRY.</span>
+        <span className="eyebrow">{ui.aboutEyebrow}</span>
         <h2>
-          {C.copy.about}
-          <span className="serifitalic">
-            An eye for detail.
-            <br />A heart for your story.
-          </span>
+          {content.copy.about}
+          <span className="serifitalic">{ui.aboutDetail}</span>
         </h2>
-        <p>{C.professional.bio}</p>
-        <p className="roles">
-          Bridal Beauty Artist · Hair Specialist
-          <br />
-          Makeup Artist · Event Beauty
-        </p>
+        <p>{content.professional.bio}</p>
+        <p className="roles">{ui.roles}</p>
         {!full ? (
-          <ButtonLink href="/about">Discover her story</ButtonLink>
+          <ButtonLink href="/about">{ui.discoverStory}</ButtonLink>
         ) : (
-          <ButtonLink href="/book">Let's meet</ButtonLink>
+          <ButtonLink href="/book">{ui.letsMeet}</ButtonLink>
         )}
       </div>
     </section>
@@ -1070,30 +1630,24 @@ function About({ full = false }: { full?: boolean }) {
 }
 
 function Bridal({ full = false }: { full?: boolean }) {
+  const { content, ui } = useTranslation();
   return (
     <section className="bridalfeature">
       <div className="bridalphoto">
         <Photo id={27} />
-        <span>YOUR DAY. YOUR BEAUTY. YOUR MOMENT.</span>
+        <span>{ui.bridalPhotoCaption}</span>
       </div>
       <div className="bridaltext">
-        <span className="eyebrow">BEAUTIFUL FROM THE FIRST MOMENT</span>
-        <h2>
-          The bridal
-          <br />
-          <em>experience.</em>
-        </h2>
-        <p>
-          From the first conversation to the final finishing touch. Hair and
-          makeup that reflect who you are, for a day that is entirely yours.
-        </p>
+        <span className="eyebrow">{ui.bridalEyebrow}</span>
+        <h2>{ui.bridalTitle}</h2>
+        <p>{ui.bridalText}</p>
         <div className="bridalservices">
-          {C.bridalServices.slice(0, full ? 9 : 6).map((service) => (
+          {content.bridalServices.slice(0, full ? 9 : 6).map((service) => (
             <span key={service}>{service}</span>
           ))}
         </div>
         <ButtonLink href={full ? "#bridal-inquiry" : "/bridal"} light>
-          Request your bridal consultation
+          {ui.requestConsultation}
         </ButtonLink>
       </div>
     </section>
@@ -1104,17 +1658,33 @@ export default function Site({ page }: { page: string }) {
   const router = useRouter();
   const [menu, setMenu] = useState(false);
   const [notice, setNotice] = useState("");
-  const [language, setLanguage] = useState("EN");
+  const [language, setLanguage] = useState<Language>("EN");
+  const translation = i18n[language];
+  const { content, pageTitles: translatedPageTitles, ui } = translation;
+  const pageTitleText = translatedPageTitles as Record<string, string>;
   const home = page === "home";
-  const contactEmail = C.contact.email;
-  const whatsappNumber = C.contact.WHATSAPP_NUMBER;
-  const visibleNavigation = useMemo(() => C.navigation, []);
+  const contactEmail = content.contact.email;
+  const whatsappNumber = content.contact.WHATSAPP_NUMBER;
+  const visibleNavigation = useMemo(() => content.navigation, [content.navigation]);
+
+  useEffect(() => {
+    const savedLanguage = window.localStorage.getItem("miria-site-language");
+
+    if (savedLanguage === "EN" || savedLanguage === "PT") {
+      setLanguage(savedLanguage);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("miria-site-language", language);
+    document.documentElement.lang = language === "PT" ? "pt-BR" : "en";
+  }, [language]);
 
   useEffect(() => {
     document.title = home
-      ? C.seo.title
-      : `${page.charAt(0).toUpperCase() + page.slice(1)} | Miriã Cotrim`;
-  }, [home, page]);
+      ? content.seo.title
+      : `${pageTitleText[page] || page.charAt(0).toUpperCase() + page.slice(1)} | Miriã Cotrim`;
+  }, [content.seo.title, home, page, pageTitleText]);
 
   const scrollToPageTarget = useCallback(
     (hash = "", behavior: ScrollBehavior = "auto") => {
@@ -1152,7 +1722,7 @@ export default function Site({ page }: { page: string }) {
 
   const showNotice = (message: string) => setNotice(message);
   const whatsappUrl = whatsappNumber
-    ? `https://wa.me/${whatsappNumber}?text=Hello%20Miria%2C%20I%20would%20like%20to%20know%20more%20about%20your%20services.`
+    ? `https://wa.me/${whatsappNumber}?text=${ui.whatsappText}`
     : "";
   const isCurrentPage = (href: string) =>
     href === "/" ? home : page === href.replace(/^\/|\/$/g, "");
@@ -1176,7 +1746,7 @@ export default function Site({ page }: { page: string }) {
   };
 
   return (
-    <>
+    <TranslationContext.Provider value={translation}>
       <header className="header">
         <Link
           href="/"
@@ -1204,10 +1774,9 @@ export default function Site({ page }: { page: string }) {
           <button
             className="language"
             onClick={() => {
-              setLanguage(language === "EN" ? "PT" : "EN");
-              showNotice(
-                "Language preview: the complete Portuguese translation can be added after final content approval.",
-              );
+              const nextLanguage = language === "EN" ? "PT" : "EN";
+              setLanguage(nextLanguage);
+              showNotice(i18n[nextLanguage].ui.languageNotice);
             }}
             type="button"
           >
@@ -1219,12 +1788,12 @@ export default function Site({ page }: { page: string }) {
             onClick={(event) => handleNavigationClick(event, "/book")}
             scroll={false}
           >
-            Book now
+            {ui.navBook}
             <ArrowUpRight size={15} />
           </Link>
           <button
             className="menubtn"
-            aria-label="Open menu"
+            aria-label={ui.openMenu}
             onClick={() => setMenu(true)}
             type="button"
           >
@@ -1235,8 +1804,8 @@ export default function Site({ page }: { page: string }) {
 
       <Sheet open={menu} onOpenChange={setMenu}>
         <SheetContent className="mobilemenu">
-          <SheetTitle>{C.brand.name}</SheetTitle>
-          <SheetDescription>{C.brand.tagline}</SheetDescription>
+          <SheetTitle>{content.brand.name}</SheetTitle>
+          <SheetDescription>{content.brand.tagline}</SheetDescription>
           {visibleNavigation.map(([name, href]) => (
             <Link
               key={name}
@@ -1247,7 +1816,7 @@ export default function Site({ page }: { page: string }) {
               {name}
             </Link>
           ))}
-          <ButtonLink href="/book">Book now</ButtonLink>
+          <ButtonLink href="/book">{ui.bookNow}</ButtonLink>
         </SheetContent>
       </Sheet>
 
@@ -1258,27 +1827,25 @@ export default function Site({ page }: { page: string }) {
               onNavigate={handleNavigationClick}
               onCredit={() =>
                 showNotice(
-                  "The homepage film uses licensed inspiration footage from Pexels. The people shown are not presented as Miriã's clients.",
+                  ui.filmNotice,
                 )
               }
             />
 
             <section className="intro section">
-              <span className="eyebrow">A PERSONAL APPROACH TO BEAUTY</span>
-              <h2>{C.copy.position}</h2>
-              <p>{C.copy.positionText}</p>
+              <span className="eyebrow">{ui.introEyebrow}</span>
+              <h2>{content.copy.position}</h2>
+              <p>{content.copy.positionText}</p>
             </section>
 
             <section className="section services">
               <div className="sectionhead">
                 <div>
-                  <span className="eyebrow">BEAUTY, IN EVERY CHAPTER</span>
-                  <h2>
-                    Created around <em>you.</em>
-                  </h2>
+                  <span className="eyebrow">{ui.servicesEyebrow}</span>
+                  <h2>{ui.servicesTitle}</h2>
                 </div>
                 <Link className="textlink" href="/services">
-                  Explore services
+                  {ui.exploreServices}
                   <ArrowUpRight size={16} />
                 </Link>
               </div>
@@ -1290,11 +1857,11 @@ export default function Site({ page }: { page: string }) {
             <section className="section">
               <div className="sectionhead">
                 <div>
-                  <span className="eyebrow">SELECTED WORK</span>
-                  <h2>{C.copy.portfolio}</h2>
+                  <span className="eyebrow">{ui.selectedWork}</span>
+                  <h2>{content.copy.portfolio}</h2>
                 </div>
                 <Link href="/portfolio" className="textlink">
-                  View the portfolio
+                  {ui.viewPortfolio}
                   <ArrowUpRight size={16} />
                 </Link>
               </div>
@@ -1304,14 +1871,14 @@ export default function Site({ page }: { page: string }) {
             <About />
 
             <section className="section signatures">
-              <span className="eyebrow">THE DETAILS MAKE THE DIFFERENCE</span>
-              <h2>{C.copy.signature}</h2>
+              <span className="eyebrow">{ui.signatureEyebrow}</span>
+              <h2>{content.copy.signature}</h2>
               <div className="signaturegrid">
                 {[
-                  [53, "Romantic Updo"],
-                  [21, "Hollywood Waves"],
-                  [39, "Modern Bridal Bun"],
-                  [15, "Soft Half-Up"],
+                  [53, ui.signatureLooks[0]],
+                  [21, ui.signatureLooks[1]],
+                  [39, ui.signatureLooks[2]],
+                  [15, ui.signatureLooks[3]],
                 ].map(([id, title]) => (
                   <Link href="/portfolio" key={id}>
                     <Photo id={Number(id)} />
@@ -1323,25 +1890,22 @@ export default function Site({ page }: { page: string }) {
 
             <section className="guide section">
               <div>
-                <span className="eyebrow">START WITH A CONVERSATION</span>
-                <h2>Plan your beauty experience.</h2>
-                <p>
-                  Tell us about your wedding, celebration or appointment and
-                  Miriã's team will follow up with the next step.
-                </p>
+                <span className="eyebrow">{ui.guideEyebrow}</span>
+                <h2>{ui.guideTitle}</h2>
+                <p>{ui.guideText}</p>
               </div>
               <ContactForm source="home_cta" />
             </section>
 
             <section className="clientlove section">
-              <span className="eyebrow">WORDS TO REMEMBER</span>
-              <h2>{C.copy.clientLove}</h2>
+              <span className="eyebrow">{ui.clientLoveEyebrow}</span>
+              <h2>{content.copy.clientLove}</h2>
               <div className="quotes">
                 {[1, 2, 3].map((item) => (
                   <div key={item}>
                     <span>“</span>
-                    <p>{C.copy.testimonial}</p>
-                    <small>Awaiting approved client stories</small>
+                    <p>{content.copy.testimonial}</p>
+                    <small>{ui.awaitingStories}</small>
                   </div>
                 ))}
               </div>
@@ -1349,9 +1913,9 @@ export default function Site({ page }: { page: string }) {
 
             <section className="section social">
               <div className="sectionhead">
-                <h2>Follow the beauty.</h2>
+                <h2>{ui.followBeauty}</h2>
                 <a
-                  href={C.socialMedia.Instagram}
+                  href={content.socialMedia.Instagram}
                   target="_blank"
                   rel="noreferrer"
                   className="textlink"
@@ -1362,7 +1926,7 @@ export default function Site({ page }: { page: string }) {
               </div>
               <div className="socialgrid">
                 {[46, 23, 31, 35, 41].map((id) => (
-                  <a href={C.socialMedia.Instagram} key={id} target="_blank" rel="noreferrer">
+                  <a href={content.socialMedia.Instagram} key={id} target="_blank" rel="noreferrer">
                     <Photo id={id} />
                   </a>
                 ))}
@@ -1373,8 +1937,8 @@ export default function Site({ page }: { page: string }) {
 
         {!home && page !== "book" && (
           <section className="pagetitle">
-            <span className="eyebrow">MIRIÃ COTRIM · BRIDAL BEAUTY</span>
-            <h1>{pageTitles[page]}</h1>
+            <span className="eyebrow">{ui.pageEyebrow}</span>
+            <h1>{pageTitleText[page]}</h1>
           </section>
         )}
 
@@ -1382,15 +1946,15 @@ export default function Site({ page }: { page: string }) {
           <>
             <About full />
             <section className="section">
-              <span className="eyebrow">THE CARE BEHIND EVERY LOOK</span>
-              <h2>{C.copy.behind}</h2>
+              <span className="eyebrow">{ui.careBehind}</span>
+              <h2>{content.copy.behind}</h2>
               <div className="behindgrid">
                 {[
-                  [31, "Consultation"],
-                  [30, "Preparation"],
-                  [32, "Styling"],
-                  [23, "Finishing touches"],
-                  [53, "Final look"],
+                  [31, ui.behindSteps[0]],
+                  [30, ui.behindSteps[1]],
+                  [32, ui.behindSteps[2]],
+                  [23, ui.behindSteps[3]],
+                  [53, ui.behindSteps[4]],
                 ].map(([id, title], index) => (
                   <div key={title}>
                     <Photo id={Number(id)} />
@@ -1408,20 +1972,14 @@ export default function Site({ page }: { page: string }) {
           <section className="section">
             <ServiceCards />
             <div className="service-detail" id="events">
-              <h2>Special events</h2>
-              <p>
-                Personalized hair and makeup for birthdays, celebrations,
-                photoshoots and the moments worth remembering.
-              </p>
-              <ButtonLink href="/book">Plan your event look</ButtonLink>
+              <h2>{ui.specialEvents}</h2>
+              <p>{ui.specialEventsText}</p>
+              <ButtonLink href="/book">{ui.planEventLook}</ButtonLink>
             </div>
             <div className="service-detail" id="hair">
-              <h2>Hair, thoughtfully cared for.</h2>
-              <p>
-                Explore cuts, styling, treatments and transformations in a
-                personal consultation.
-              </p>
-              <ButtonLink href="/book">Explore an appointment</ButtonLink>
+              <h2>{ui.hairTitle}</h2>
+              <p>{ui.hairText}</p>
+              <ButtonLink href="/book">{ui.exploreAppointment}</ButtonLink>
             </div>
           </section>
         )}
@@ -1431,12 +1989,8 @@ export default function Site({ page }: { page: string }) {
             <Bridal full />
             <section className="section bridalform" id="bridal-inquiry">
               <div>
-                <span className="eyebrow">TELL US ABOUT YOUR DAY</span>
-                <h2>
-                  Plan your bridal
-                  <br />
-                  <em>beauty experience.</em>
-                </h2>
+                <span className="eyebrow">{ui.bridalFormEyebrow}</span>
+                <h2>{ui.bridalFormTitle}</h2>
                 <Photo id={44} />
               </div>
               <BridalInquiryForm />
@@ -1453,18 +2007,11 @@ export default function Site({ page }: { page: string }) {
         {page === "contact" && (
           <section className="section contactgrid">
             <div>
-              <h2>
-                Your story starts
-                <br />
-                <em>with a conversation.</em>
-              </h2>
-              <p>
-                Bridal beauty, a special occasion, a fresh look or a custom
-                event request. Send a message and Miriã's team will respond.
-              </p>
-              <ButtonLink href="/book">Explore appointments</ButtonLink>
+              <h2>{ui.contactTitle}</h2>
+              <p>{ui.contactText}</p>
+              <ButtonLink href="/book">{ui.exploreAppointments}</ButtonLink>
               <a
-                href={C.socialMedia.Instagram}
+                href={content.socialMedia.Instagram}
                 className="textlink"
                 target="_blank"
                 rel="noreferrer"
@@ -1493,16 +2040,12 @@ export default function Site({ page }: { page: string }) {
       <footer>
         <div className="footertop">
           <div className="footerbrand">
-            <span>{C.brand.name}</span>
-            <small>BRIDAL BEAUTY</small>
-            <p>
-              Personal beauty.
-              <br />
-              Unforgettable moments.
-            </p>
+            <span>{content.brand.name}</span>
+            <small>{ui.footerTagline}</small>
+            <p>{ui.footerCopy}</p>
           </div>
           <div>
-            <span className="eyebrow">EXPLORE</span>
+            <span className="eyebrow">{ui.explore}</span>
             {visibleNavigation.slice(1).map(([name, href]) => (
               <Link key={name} href={href}>
                 {name}
@@ -1510,16 +2053,16 @@ export default function Site({ page }: { page: string }) {
             ))}
           </div>
           <div>
-            <span className="eyebrow">LET'S CONNECT</span>
-            <Link href="/contact">Contact</Link>
-            {Object.entries(C.socialMedia).map(([name, url]) =>
+            <span className="eyebrow">{ui.letsConnect}</span>
+            <Link href="/contact">{ui.contact}</Link>
+            {Object.entries(content.socialMedia).map(([name, url]) =>
               url ? (
                 <a key={name} href={url} target="_blank" rel="noreferrer">
                   {name}
                 </a>
               ) : null,
             )}
-            {contactEmail && <a href={`mailto:${contactEmail}`}>Email</a>}
+            {contactEmail && <a href={`mailto:${contactEmail}`}>{ui.email}</a>}
             {whatsappUrl && (
               <a href={whatsappUrl} target="_blank" rel="noreferrer">
                 WhatsApp
@@ -1527,7 +2070,7 @@ export default function Site({ page }: { page: string }) {
             )}
           </div>
           <div className="newsletter">
-            <h3>Join our Beauty List</h3>
+            <h3>{ui.newsletterTitle}</h3>
             <NewsletterForm />
           </div>
         </div>
@@ -1535,14 +2078,14 @@ export default function Site({ page }: { page: string }) {
           <span>
             © {new Date().getFullYear()} Miriã Cotrim Bridal Beauty
           </span>
-          <span>{C.brand.version}</span>
+          <span>{content.brand.version}</span>
           <div>
-            {["Privacy Policy", "Terms", "Cancellation Policy"].map((item) => (
+            {ui.footerPolicies.map((item) => (
               <button
                 key={item}
                 onClick={() =>
                   showNotice(
-                    `${item}: final policies should be reviewed and published before launch.`,
+                    `${item}: ${ui.policyNotice}`,
                   )
                 }
                 type="button"
@@ -1556,18 +2099,16 @@ export default function Site({ page }: { page: string }) {
 
       <button
         className="whatsapp"
-        aria-label="Talk to Miriã on WhatsApp"
+        aria-label={ui.whatsappLabel}
         onClick={() =>
           whatsappUrl
             ? window.open(whatsappUrl, "_blank")
-            : showNotice(
-                "Add Miriã's official WhatsApp number in app/siteContent.ts before launch.",
-              )
+            : showNotice(ui.whatsappMissing)
         }
         type="button"
       >
         <MessageCircle size={22} />
-        <span>Talk to Miriã</span>
+        <span>{ui.whatsappButton}</span>
       </button>
 
       <Dialog open={!!notice} onOpenChange={(open) => !open && setNotice("")}>
@@ -1575,10 +2116,10 @@ export default function Site({ page }: { page: string }) {
           <DialogTitle>Miriã Cotrim Bridal Beauty</DialogTitle>
           <DialogDescription>{notice}</DialogDescription>
           <button className="btn" onClick={() => setNotice("")} type="button">
-            Got it
+            {ui.gotIt}
           </button>
         </DialogContent>
       </Dialog>
-    </>
+    </TranslationContext.Provider>
   );
 }
