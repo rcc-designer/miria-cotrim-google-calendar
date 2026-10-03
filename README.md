@@ -43,6 +43,7 @@ NEXT_PUBLIC_SITE_URL=
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=
 ADMIN_NOTIFICATION_EMAIL=
+CRON_SECRET=
 BOOKING_TIMEZONE=America/New_York
 GOOGLE_CALENDAR_ID=
 GOOGLE_CLIENT_ID=
@@ -50,7 +51,7 @@ GOOGLE_CLIENT_SECRET=
 GOOGLE_REFRESH_TOKEN=
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN` e `RESEND_API_KEY` são segredos de servidor. Não coloque esses valores no browser nem publique no repositório.
+`SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `RESEND_API_KEY` e `CRON_SECRET` são segredos de servidor. Não coloque esses valores no browser nem publique no repositório.
 
 ## Supabase
 
@@ -162,6 +163,34 @@ Formulários que disparam notificação:
 | Join our Beauty List | `New Beauty List subscriber` |
 
 Para produção, verifique o domínio no Resend antes de usar `RESEND_FROM_EMAIL`. O remetente de teste `onboarding@resend.dev` serve apenas para testes limitados.
+
+## Relatório mensal automático
+
+O projeto gera um relatório mensal em português com os formulários recebidos no mês anterior. O relatório é enviado por e-mail via Resend para `ADMIN_NOTIFICATION_EMAIL`.
+
+O agendamento fica em `vercel.json`:
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/admin/monthly-report",
+      "schedule": "0 13 1 * *"
+    }
+  ]
+}
+```
+
+Esse cron roda todo dia 1 às 13:00 UTC, normalmente pela manhã no horário da Flórida. A rota consulta:
+
+| Tabela | Conteúdo no relatório |
+| --- | --- |
+| `contact_messages` | Mensagens enviadas pelo Contact |
+| `bridal_inquiries` | Consultas para noivas |
+| `booking_requests` | Solicitações de agendamento |
+| `newsletter_subscribers` | Novos inscritos na Beauty List |
+
+Para ativar em produção, adicione `CRON_SECRET` nas variáveis do Vercel com uma string aleatória forte. A Vercel envia esse valor automaticamente no header `Authorization` quando executar o Cron Job.
 
 ## Deploy via GitHub + Vercel
 
