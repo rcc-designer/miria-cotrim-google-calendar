@@ -9,6 +9,7 @@ import {
   createPendingCalendarEvent,
   getCalendarBusyTimes,
 } from "@/lib/googleCalendar";
+import { notifyAdminSafely } from "@/lib/emailNotifications";
 import {
   cleanString,
   getSupabaseAdmin,
@@ -119,6 +120,24 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
+
+    await notifyAdminSafely({
+      subject: "New appointment request from the website",
+      title: "New appointment request",
+      intro:
+        "A client selected an available time on the Book page. The request was saved in Supabase and a tentative event was created in Google Calendar.",
+      fields: [
+        { label: "Name", value: name },
+        { label: "Email", value: email },
+        { label: "Phone / WhatsApp", value: phone },
+        { label: "Service", value: availability.service.name },
+        { label: "Preferred date", value: selectedSlot.date },
+        { label: "Preferred time", value: selectedSlot.start_label },
+        { label: "Time zone", value: timeZone },
+        { label: "Google event link", value: googleEvent.htmlLink },
+        { label: "Notes", value: notes },
+      ],
+    });
 
     return NextResponse.json({
       ok: true,

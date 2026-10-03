@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { notifyAdminSafely } from "@/lib/emailNotifications";
 import { cleanString, getSupabaseAdmin, isValidEmail } from "@/lib/supabaseServer";
 
 export const runtime = "nodejs";
@@ -48,6 +49,19 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
+
+    await notifyAdminSafely({
+      subject: "New Beauty List subscriber",
+      title: "New Beauty List subscriber",
+      intro:
+        "A visitor joined the Beauty List and the subscription was saved in Supabase.",
+      fields: [
+        { label: "Name", value: name },
+        { label: "Email", value: email },
+        { label: "Source", value: source },
+        { label: "Consent", value: consent ? "Yes" : "No" },
+      ],
+    });
 
     return NextResponse.json({
       ok: true,

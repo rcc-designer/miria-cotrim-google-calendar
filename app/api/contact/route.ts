@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { notifyAdminSafely } from "@/lib/emailNotifications";
 import {
   cleanString,
   getSupabaseAdmin,
@@ -54,6 +55,20 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
+
+    await notifyAdminSafely({
+      subject: "New contact message from the website",
+      title: "New contact message",
+      intro:
+        "A visitor submitted the Contact form and the message was saved in Supabase.",
+      fields: [
+        { label: "Name", value: name },
+        { label: "Email", value: email },
+        { label: "Phone / WhatsApp", value: phone },
+        { label: "Source", value: source },
+        { label: "Message", value: message },
+      ],
+    });
 
     return NextResponse.json({
       ok: true,

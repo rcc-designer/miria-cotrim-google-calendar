@@ -40,7 +40,9 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_SITE_URL=
-CONTACT_NOTIFICATION_EMAIL=
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+ADMIN_NOTIFICATION_EMAIL=
 BOOKING_TIMEZONE=America/New_York
 GOOGLE_CALENDAR_ID=
 GOOGLE_CLIENT_ID=
@@ -48,7 +50,7 @@ GOOGLE_CLIENT_SECRET=
 GOOGLE_REFRESH_TOKEN=
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET` e `GOOGLE_REFRESH_TOKEN` são segredos de servidor. Não coloque esses valores no browser nem publique no repositório.
+`SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN` e `RESEND_API_KEY` são segredos de servidor. Não coloque esses valores no browser nem publique no repositório.
 
 ## Supabase
 
@@ -138,6 +140,29 @@ Para ativar Google Calendar, você precisa criar/configurar no Google Cloud:
 - `GET /api/availability?service=haircut&start=2026-10-02&end=2026-10-02`: retorna slots disponíveis.
 - `POST /api/booking`: cria pedido pendente no Supabase e evento tentativo no Google Calendar.
 
+## Notificações por e-mail com Resend
+
+Depois que um formulário é salvo no Supabase, o site tenta enviar um e-mail para a administração usando Resend. Se o envio do e-mail falhar, o registro continua salvo no Supabase e o usuário ainda recebe a confirmação do site.
+
+Variáveis necessárias:
+
+| Variável | Uso |
+| --- | --- |
+| `RESEND_API_KEY` | Chave secreta criada no painel do Resend |
+| `RESEND_FROM_EMAIL` | Remetente verificado no Resend, por exemplo `Miriã Cotrim Website <notifications@seudominio.com>` |
+| `ADMIN_NOTIFICATION_EMAIL` | E-mail que receberá os avisos dos formulários |
+
+Formulários que disparam notificação:
+
+| Formulário | Assunto do e-mail |
+| --- | --- |
+| Contact | `New contact message from the website` |
+| Bridal inquiry | `New bridal inquiry from the website` |
+| Book | `New appointment request from the website` |
+| Join our Beauty List | `New Beauty List subscriber` |
+
+Para produção, verifique o domínio no Resend antes de usar `RESEND_FROM_EMAIL`. O remetente de teste `onboarding@resend.dev` serve apenas para testes limitados.
+
 ## Deploy via GitHub + Vercel
 
 ```bash
@@ -174,4 +199,4 @@ Serviços e agenda ficam no Supabase, não no código.
 
 ## Observação sobre e-mail
 
-O Supabase grava os dados, mas não envia alerta por e-mail automaticamente. `CONTACT_NOTIFICATION_EMAIL` está reservado para futura ativação de notificação com Resend, SendGrid ou outro provedor.
+O Supabase continua sendo a base principal dos dados. O Resend é usado apenas para avisar a administração quando um formulário é enviado.
