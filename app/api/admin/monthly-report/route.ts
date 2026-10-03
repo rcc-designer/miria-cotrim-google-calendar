@@ -1,11 +1,12 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { escapeHtml, sendAdminEmail } from "@/lib/emailNotifications";
+import { Resend } from "resend";
 import { getSupabaseAdmin } from "@/lib/supabaseServer";
 
 export const runtime = "nodejs";
 
 const REPORT_TIME_ZONE = "America/New_York";
+const fallbackFromEmail = "Miriã Cotrim Website <onboarding@resend.dev>";
 
 type ContactMessage = {
   name: string;
@@ -50,6 +51,49 @@ type NewsletterSubscriber = {
   consent: boolean | null;
   created_at: string;
 };
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+async function sendReportEmail({
+  subject,
+  html,
+  text,
+}: {
+  subject: string;
+  html: string;
+  text: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const toEmail =
+    process.env.ADMIN_NOTIFICATION_EMAIL || process.env.CONTACT_NOTIFICATION_EMAIL;
+  const fromEmail = process.env.RESEND_FROM_EMAIL || fallbackFromEmail;
+
+  if (!apiKey || !toEmail) {
+    throw new Error(
+      "Configure RESEND_API_KEY and ADMIN_NOTIFICATION_EMAIL before sending reports.",
+    );
+  }
+
+  const resend = new Resend(apiKey);
+  const { error } = await resend.emails.send({
+    from: fromEmail,
+    to: toEmail,
+    subject,
+    html,
+    text,
+  });
+
+  if (error) {
+    throw new Error(`Resend report email failed: ${error.message}`);
+  }
+}
 
 function getZonedParts(date: Date) {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -427,7 +471,7 @@ export async function GET(request: NextRequest) {
       period.end.toISOString(),
     );
 
-    await sendAdminEmail({
+    await sendReportEmail({
       subject: `Relatório mensal de formulários - ${period.label}`,
       html: buildHtmlReport({ label: period.label, ...data }),
       text: buildTextReport({ label: period.label, ...data }),
