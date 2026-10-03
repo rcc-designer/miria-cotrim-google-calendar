@@ -2,7 +2,8 @@ export const siteContent = {
   brand: {
     name: "Miriã Cotrim",
     tagline: "Bridal Beauty",
-    version: "Copyright 2026 - Orlando, USA",
+    version: "Website by Upper Technology",
+    developerUrl: "https://www.instagram.com/upper.technology",
   },
   professional: {
     bio: "Miriã believes beauty should feel personal, effortless and unforgettable. Her work combines technique, attention to detail and a personalized approach to create looks designed for each client's style, personality and special moment.",

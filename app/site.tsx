@@ -2492,7 +2492,17 @@ export default function Site({ page }: { page: string }) {
           <span>
             © {new Date().getFullYear()} Miriã Cotrim Bridal Beauty
           </span>
-          <span>{content.brand.version}</span>
+          {content.brand.developerUrl ? (
+            <a
+              href={content.brand.developerUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {content.brand.version}
+            </a>
+          ) : (
+            <span>{content.brand.version}</span>
+          )}
           <div>
             {ui.footerPolicies.map((item) => (
               <Link key={item.href} href={item.href}>
