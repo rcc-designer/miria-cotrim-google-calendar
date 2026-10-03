@@ -56,6 +56,15 @@ type SubmitResponse = SubmitFeedback & {
   ok?: boolean;
   error?: string;
 };
+type LegalDocument = {
+  title: string;
+  updated: string;
+  intro: string;
+  sections: Array<{
+    heading: string;
+    body: string[];
+  }>;
+};
 type BookingService = {
   slug: string;
   name: string;
@@ -146,7 +155,12 @@ const i18n = {
   EN: {
     language: "EN",
     content: C,
-    pageTitles,
+    pageTitles: {
+      ...pageTitles,
+      privacy: "Privacy Policy",
+      terms: "Terms of Service",
+      cancellation: "Cancellation Policy",
+    },
     labels: label,
     feedback: feedbackCopy,
     categories,
@@ -320,7 +334,11 @@ const i18n = {
       letsConnect: "LET'S CONNECT",
       contact: "Contact",
       email: "Email",
-      footerPolicies: ["Privacy Policy", "Terms", "Cancellation Policy"],
+      footerPolicies: [
+        { label: "Privacy Policy", href: "/privacy" },
+        { label: "Terms", href: "/terms" },
+        { label: "Cancellation Policy", href: "/cancellation" },
+      ],
       policyNotice:
         "Final policies should be reviewed and published before launch.",
       whatsappMissing:
@@ -330,6 +348,124 @@ const i18n = {
       whatsappLabel: "Talk to Miriã on WhatsApp",
       whatsappButton: "Talk to Miriã",
     },
+    legal: {
+      privacy: {
+        title: "Privacy Policy",
+        updated: "Last updated: October 2026",
+        intro:
+          "This Privacy Policy explains how Miriã Cotrim Bridal Beauty may collect, use and protect information submitted through this website. It is a general template and should be reviewed by a qualified professional before final publication.",
+        sections: [
+          {
+            heading: "Information we collect",
+            body: [
+              "We may collect information you voluntarily submit through contact, bridal inquiry, booking and newsletter forms, including your name, email address, phone or WhatsApp number, event details, requested service, preferred date and message.",
+              "The website may also collect limited technical information such as browser, device and usage data through standard hosting, analytics or security tools.",
+            ],
+          },
+          {
+            heading: "How we use your information",
+            body: [
+              "We use submitted information to respond to inquiries, review appointment availability, prepare bridal or beauty service proposals, manage pending booking requests and send occasional updates when you opt in.",
+              "We do not sell personal information. Information may be shared only with service providers that help operate the website, store form submissions, manage calendars or send notifications.",
+            ],
+          },
+          {
+            heading: "Bookings and calendar information",
+            body: [
+              "When you request an appointment, the website may save the request in a secure database and create a pending calendar entry for internal review. A submitted request is not a confirmed appointment until the team confirms it.",
+            ],
+          },
+          {
+            heading: "Data storage and security",
+            body: [
+              "Form submissions may be stored in systems such as Supabase and processed through tools used to operate the website. Reasonable safeguards are used to protect this information, but no online system can be guaranteed to be completely secure.",
+            ],
+          },
+          {
+            heading: "Your choices",
+            body: [
+              "You may request correction or deletion of your submitted information, or ask to stop receiving optional marketing messages, by contacting the business through the contact options listed on the website.",
+            ],
+          },
+        ],
+      },
+      terms: {
+        title: "Terms of Service",
+        updated: "Last updated: October 2026",
+        intro:
+          "These Terms describe the general conditions for using this website and requesting beauty, bridal, hair and makeup services from Miriã Cotrim Bridal Beauty. They are provided as a customizable template and should be reviewed before final publication.",
+        sections: [
+          {
+            heading: "Website use",
+            body: [
+              "This website provides information about beauty services, bridal services, portfolio examples, contact options and appointment request tools. By using the website, you agree to use it only for lawful and appropriate purposes.",
+            ],
+          },
+          {
+            heading: "Service information",
+            body: [
+              "Service descriptions, durations, availability and pricing may change and are provided for general information. Final service details, timing, location, team availability and any travel requirements should be confirmed directly with the business.",
+            ],
+          },
+          {
+            heading: "Appointment requests",
+            body: [
+              "Submitting a booking form does not guarantee an appointment. Requests are reviewed and remain pending until confirmed by the owner or team. The website may show available times based on calendar information, but final confirmation is required.",
+            ],
+          },
+          {
+            heading: "Client responsibilities",
+            body: [
+              "Clients are responsible for providing accurate contact details, event information, service preferences and any relevant timing or location requirements. Incorrect or incomplete information may delay confirmation.",
+            ],
+          },
+          {
+            heading: "Portfolio and content",
+            body: [
+              "Images, videos, copy, branding and portfolio materials on this website are provided for presentation purposes and may not be copied or reused without permission.",
+            ],
+          },
+        ],
+      },
+      cancellation: {
+        title: "Cancellation Policy",
+        updated: "Last updated: October 2026",
+        intro:
+          "This Cancellation Policy provides a general structure for beauty, bridal, hair and makeup appointments. It should be customized with the business's final deposit, timing and refund rules before launch.",
+        sections: [
+          {
+            heading: "Pending requests",
+            body: [
+              "A request submitted through the website is not confirmed until the business approves it. Pending requests may be declined or adjusted if the requested date, time, location or service is unavailable.",
+            ],
+          },
+          {
+            heading: "Confirmed appointments",
+            body: [
+              "Once an appointment is confirmed, clients should notify the business as soon as possible if they need to reschedule or cancel. Availability for rescheduling is not guaranteed and depends on the calendar.",
+            ],
+          },
+          {
+            heading: "Deposits and retainers",
+            body: [
+              "If a deposit or retainer is required, the amount, due date and refundability should be confirmed in writing before the appointment or bridal booking is finalized.",
+            ],
+          },
+          {
+            heading: "Late arrivals and no-shows",
+            body: [
+              "Late arrival may reduce the available service time and may affect the final result. Missed appointments or no-shows may be subject to cancellation fees once the business's final policy is approved.",
+            ],
+          },
+          {
+            heading: "Bridal and event services",
+            body: [
+              "Bridal and event bookings may require special timing, travel planning, assistants or reserved dates. Cancellation rules for these services should be confirmed in a written agreement or proposal.",
+            ],
+          },
+        ],
+      },
+    } satisfies Record<string, LegalDocument>,
   },
   PT: {
     language: "PT",
@@ -424,6 +560,9 @@ const i18n = {
       bridal: "Seu dia. Do seu jeito.",
       portfolio: "Uma coleção de momentos bonitos.",
       contact: "Vamos criar algo lindo.",
+      privacy: "Política de Privacidade",
+      terms: "Termos de Serviço",
+      cancellation: "Política de Cancelamento",
     },
     labels: {
       name: "Nome",
@@ -670,9 +809,9 @@ const i18n = {
       contact: "Contato",
       email: "E-mail",
       footerPolicies: [
-        "Política de Privacidade",
-        "Termos",
-        "Política de Cancelamento",
+        { label: "Política de Privacidade", href: "/privacy" },
+        { label: "Termos", href: "/terms" },
+        { label: "Política de Cancelamento", href: "/cancellation" },
       ],
       policyNotice:
         "As políticas finais devem ser revisadas e publicadas antes do lançamento.",
@@ -683,6 +822,124 @@ const i18n = {
       whatsappLabel: "Falar com Miriã no WhatsApp",
       whatsappButton: "Falar com Miriã",
     },
+    legal: {
+      privacy: {
+        title: "Política de Privacidade",
+        updated: "Última atualização: outubro de 2026",
+        intro:
+          "Esta Política de Privacidade explica como Miriã Cotrim Bridal Beauty pode coletar, usar e proteger informações enviadas por meio deste website. Este é um modelo geral e deve ser revisado por um profissional qualificado antes da publicação final.",
+        sections: [
+          {
+            heading: "Informações que coletamos",
+            body: [
+              "Podemos coletar informações enviadas voluntariamente nos formulários de contato, consulta para noivas, agendamento e newsletter, incluindo nome, e-mail, telefone ou WhatsApp, detalhes do evento, serviço solicitado, data preferida e mensagem.",
+              "O website também pode coletar informações técnicas limitadas, como navegador, dispositivo e dados de uso, por meio de ferramentas padrão de hospedagem, análise ou segurança.",
+            ],
+          },
+          {
+            heading: "Como usamos suas informações",
+            body: [
+              "Usamos as informações enviadas para responder solicitações, verificar disponibilidade de agenda, preparar propostas de serviços de beleza ou noivas, gerenciar pedidos de agendamento pendentes e enviar atualizações ocasionais quando houver consentimento.",
+              "Não vendemos informações pessoais. As informações podem ser compartilhadas apenas com provedores que ajudam a operar o website, armazenar envios de formulários, gerenciar calendários ou enviar notificações.",
+            ],
+          },
+          {
+            heading: "Agendamentos e informações de calendário",
+            body: [
+              "Quando você solicita um agendamento, o website pode salvar o pedido em um banco de dados seguro e criar um evento pendente de calendário para revisão interna. Um pedido enviado não é um agendamento confirmado até a confirmação da equipe.",
+            ],
+          },
+          {
+            heading: "Armazenamento e segurança",
+            body: [
+              "Os envios de formulários podem ser armazenados em sistemas como Supabase e processados por ferramentas usadas para operar o website. Medidas razoáveis são usadas para proteger essas informações, mas nenhum sistema online pode ser garantido como totalmente seguro.",
+            ],
+          },
+          {
+            heading: "Suas escolhas",
+            body: [
+              "Você pode solicitar correção ou exclusão das informações enviadas, ou pedir para deixar de receber mensagens opcionais de marketing, entrando em contato com a empresa pelos canais informados no website.",
+            ],
+          },
+        ],
+      },
+      terms: {
+        title: "Termos de Serviço",
+        updated: "Última atualização: outubro de 2026",
+        intro:
+          "Estes Termos descrevem as condições gerais para uso deste website e para solicitação de serviços de beleza, noivas, cabelo e maquiagem da Miriã Cotrim Bridal Beauty. São apresentados como um modelo customizável e devem ser revisados antes da publicação final.",
+        sections: [
+          {
+            heading: "Uso do website",
+            body: [
+              "Este website apresenta informações sobre serviços de beleza, serviços para noivas, portfólio, canais de contato e ferramentas de solicitação de agendamento. Ao usar o website, você concorda em utilizá-lo apenas para fins legais e adequados.",
+            ],
+          },
+          {
+            heading: "Informações sobre serviços",
+            body: [
+              "Descrições de serviços, durações, disponibilidade e preços podem mudar e são fornecidos como informação geral. Detalhes finais de serviço, horário, local, disponibilidade da equipe e eventuais deslocamentos devem ser confirmados diretamente com a empresa.",
+            ],
+          },
+          {
+            heading: "Solicitações de agendamento",
+            body: [
+              "Enviar um formulário de agendamento não garante o atendimento. Os pedidos são revisados e permanecem pendentes até confirmação pela proprietária ou equipe. O website pode mostrar horários disponíveis com base no calendário, mas a confirmação final é necessária.",
+            ],
+          },
+          {
+            heading: "Responsabilidades da cliente",
+            body: [
+              "A cliente é responsável por fornecer dados de contato, informações do evento, preferências de serviço e requisitos de horário ou local de forma correta. Informações incorretas ou incompletas podem atrasar a confirmação.",
+            ],
+          },
+          {
+            heading: "Portfólio e conteúdo",
+            body: [
+              "Imagens, vídeos, textos, marca e materiais de portfólio deste website são apresentados para fins de divulgação e não podem ser copiados ou reutilizados sem autorização.",
+            ],
+          },
+        ],
+      },
+      cancellation: {
+        title: "Política de Cancelamento",
+        updated: "Última atualização: outubro de 2026",
+        intro:
+          "Esta Política de Cancelamento apresenta uma estrutura geral para atendimentos de beleza, noivas, cabelo e maquiagem. Ela deve ser customizada com as regras finais de depósito, prazos e reembolso antes do lançamento.",
+        sections: [
+          {
+            heading: "Solicitações pendentes",
+            body: [
+              "Uma solicitação enviada pelo website não está confirmada até aprovação da empresa. Pedidos pendentes podem ser recusados ou ajustados caso a data, horário, local ou serviço solicitado não esteja disponível.",
+            ],
+          },
+          {
+            heading: "Agendamentos confirmados",
+            body: [
+              "Após a confirmação do agendamento, a cliente deve avisar a empresa o quanto antes caso precise remarcar ou cancelar. A remarcação depende da disponibilidade da agenda e não é garantida.",
+            ],
+          },
+          {
+            heading: "Depósitos e reservas",
+            body: [
+              "Se houver exigência de depósito ou reserva, o valor, prazo de pagamento e possibilidade de reembolso devem ser confirmados por escrito antes da finalização do atendimento ou pacote de noiva.",
+            ],
+          },
+          {
+            heading: "Atrasos e não comparecimento",
+            body: [
+              "Atrasos podem reduzir o tempo disponível para o serviço e afetar o resultado final. Faltas ou não comparecimento podem estar sujeitos a taxas de cancelamento após aprovação da política final da empresa.",
+            ],
+          },
+          {
+            heading: "Serviços de noivas e eventos",
+            body: [
+              "Reservas para noivas e eventos podem exigir planejamento de horários, deslocamento, assistentes ou reserva da data. As regras de cancelamento para esses serviços devem ser confirmadas em proposta ou contrato escrito.",
+            ],
+          },
+        ],
+      },
+    } satisfies Record<string, LegalDocument>,
   },
 };
 
@@ -1789,6 +2046,26 @@ function Bridal({ full = false }: { full?: boolean }) {
   );
 }
 
+function LegalPage({ document }: { document: LegalDocument }) {
+  return (
+    <section className="section legalpage">
+      <span className="eyebrow">{document.updated}</span>
+      <h1>{document.title}</h1>
+      <p className="legalintro">{document.intro}</p>
+      <div className="legalcontent">
+        {document.sections.map((section) => (
+          <article key={section.heading}>
+            <h2>{section.heading}</h2>
+            {section.body.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function Site({ page }: { page: string }) {
   const router = useRouter();
   const [menu, setMenu] = useState(false);
@@ -1797,6 +2074,8 @@ export default function Site({ page }: { page: string }) {
   const translation = i18n[language];
   const { content, pageTitles: translatedPageTitles, ui } = translation;
   const pageTitleText = translatedPageTitles as Record<string, string>;
+  const legalDocument =
+    translation.legal[page as keyof typeof translation.legal] || null;
   const home = page === "home";
   const contactEmail = content.contact.email;
   const whatsappNumber = content.contact.WHATSAPP_NUMBER;
@@ -2068,12 +2347,14 @@ export default function Site({ page }: { page: string }) {
           </>
         )}
 
-        {!home && page !== "book" && (
+        {!home && page !== "book" && !legalDocument && (
           <section className="pagetitle">
             <span className="eyebrow">{ui.pageEyebrow}</span>
             <h1>{pageTitleText[page]}</h1>
           </section>
         )}
+
+        {legalDocument && <LegalPage document={legalDocument} />}
 
         {page === "about" && (
           <>
@@ -2214,17 +2495,9 @@ export default function Site({ page }: { page: string }) {
           <span>{content.brand.version}</span>
           <div>
             {ui.footerPolicies.map((item) => (
-              <button
-                key={item}
-                onClick={() =>
-                  showNotice(
-                    `${item}: ${ui.policyNotice}`,
-                  )
-                }
-                type="button"
-              >
-                {item}
-              </button>
+              <Link key={item.href} href={item.href}>
+                {item.label}
+              </Link>
             ))}
           </div>
         </div>

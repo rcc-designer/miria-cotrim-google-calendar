@@ -163,6 +163,13 @@ body {
 .newsletter .formfeedback{margin-top:0;padding:14px}
 .newsletter .formfeedback h3{font-size:20px}
 .newsletter .formfeedback p{font-size:12px!important}
+.legalpage{max-width:980px;padding-top:85px}
+.legalpage h1{font-size:clamp(46px,5vw,72px);margin-bottom:24px}
+.legalintro{font-size:17px!important;line-height:1.85!important;margin-bottom:48px;color:#5d5047}
+.legalcontent{display:grid;gap:34px}
+.legalcontent article{border-top:1px solid #d9cdbc;padding-top:28px}
+.legalcontent h2{font-size:31px;margin-bottom:14px}
+.legalcontent p{margin-bottom:14px}
 [id]{scroll-margin-top:120px}
 .hero-film{display:block;position:relative;isolation:isolate;margin:0;min-height:720px;height:calc(100svh - 104px);max-height:1000px;overflow:hidden;background:#413a32;color:white}
 .film-background{position:absolute;inset:0;z-index:-2}
