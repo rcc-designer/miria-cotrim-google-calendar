@@ -2192,7 +2192,7 @@ export default function Site({ page }: { page: string }) {
             }}
             type="button"
           >
-            {language} <span>⌄</span>
+            {language === "EN" ? "PT" : "EN"} <span>⌄</span>
           </button>
           <Link
             href="/book"
