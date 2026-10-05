@@ -105,7 +105,7 @@ export const siteContent = {
     explore: "Explore bridal services",
     position: "Bridal beauty, elevated.",
     positionText:
-      "More than a beautiful look. A feeling of being entirely yourself. Discover personalized hair and makeup for noivas, madrinhas, special events and unforgettable portraits.",
+      "More than a beautiful look. A feeling of being entirely yourself. Discover personalized hair and makeup for brides, bridesmaids, special events and unforgettable portraits.",
     portfolio: "The art of feeling beautiful.",
     about: "Meet Miriã",
     behind: "Behind the beauty",
